@@ -1,1 +1,2 @@
 0 */5 * * * /bin/bash /home/hilmifawwaz/sisop/modul1/soal4/isabel-a.sh
+@hourly /bin/bash /home/hilmifawwaz/sisop/modul1/soal4/isabel-b.sh
