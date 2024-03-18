@@ -3,9 +3,9 @@
 
 |    NRP     |      Name      |
 | :--------: | :------------: |
-| 5025221000 | Student 1 Name |
-| 5025221000 | Student 2 Name |
-| 5025221000 | Student 3 Name |
+| 5025221007 | Yehezkiella Felicia Jeis Timbulong |
+| 5025221047 | Muhammad Rayyaan Fatikhahur Rakhim |
+| 5025221103 | Hilmi Fawwaz Sa'ad |
 
 # Praktikum Modul 1 _(Module 1 Lab Work)_
 
