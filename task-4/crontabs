@@ -1,2 +1,2 @@
-0 */5 * * * /bin/bash /home/hilmifawwaz/sisop/modul1/soal4/isabel-a.sh
-@hourly /bin/bash /home/hilmifawwaz/sisop/modul1/soal4/isabel-b.sh
+0 */5 * * * /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-a.sh
+@hourly /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-b.sh
