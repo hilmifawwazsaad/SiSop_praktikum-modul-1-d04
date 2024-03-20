@@ -48,23 +48,34 @@ Yuan sedang gabut dan lagi makan toge. Setelah kenyang, dia ingin menambah suatu
 ### Problem 2a
 * Yuan ingin membuat file bash login bernama yu_login.sh untuk memastikan bahwa peserta yang telah ada di dalam file .csv tersebut, dapat langsung melakukan login, tanpa perlu register. Apabila loginnya sukses, maka akan masuk ke log.txt
 * Memasukkan username. Username didapatkan dari kata pertama pada kolom nama_pengusul
+
 **Jawab**
+
 * Memasukkan password. Password didapatkan dari fakultas+nipd_dosen_pendamping
+
 **Jawab**
+
 * Setiap percobaan login akan tercatat pada log.txt dengan format YY/MM/DD hh:mm:ss MESSAGE
+
 **Jawab**
 
 ### Problem 2b
 * Yuan juga ingin membuat file bash register bernama yu_register.sh untuk handle peserta baru yang ingin upload proposal. Data baru ini akan langsung disimpan dalam file .csv tersebut.
+
 **Jawab**
+
 * Memasukkan nama_pengusul, asal departemen, fakultas, judul proposal, dosen pendamping (nidn), skema pkm. (Sesuaikan dengan file .csv)
+
 **Jawab**
+
 * Setiap percobaan register akan tercatat pada log.txt dengan format YY/MM/DD hh:mm:ss MESSAGE
+
 **Jawab**
 
 ### Problem 2c
 * Yuan tidak ingin capek. Dia membuat automasi di file bash bernama yu_database.sh untuk dapat membuat file users.txt guna menyimpan username dan password dari para peserta
 * File users.txt akan diupdate setiap 1 jam sekali
+
 **Jawab**
 
 ## Soal 3
@@ -93,12 +104,19 @@ Selanjutnya agar lebih menghemat penyimpan, buatlah script backup_metrics.sh. Di
 Isabel sedang LDR dengan pacarnya dan sangat rindu. Isabel ingin menyimpan semua foto-foto yang dikirim oleh pacarnya. Bantulah Isabel menyimpan gambar "Mingyu Seventeen”.
 ### Problem 4a
 * Gambarnya di download setiap 5 jam sekali mulai dari saat script dijalankan dan memperhatikan waktu sekarang. Jika waktu genap, maka simpan foto sebanyak 5x. Jika waktu ganjil, maka simpan foto sebanyak 3x. (Contoh : pukul sekarang 12.38, maka pukul 12 adalah genap sehingga simpan foto sebanyak 5x).
+
 **Jawab**
+
 * Jika pukul menunjukkan 00.00, maka simpan foto sebanyak 10x.
+
 **Jawab**
+
 * File yang didownload memiliki format nama foto_NOMOR.FILE dengan NOMOR.FILE adalah urutan file yang download (foto_1, foto_2, dst)
+
 **Jawab**
+
 * File batch yang didownload akan dimasukkan ke dalam folder dengan format nama folder_NOMOR.FOLDER dengan NOMOR.FOLDER adalah urutan folder saat dibuat (folder_1, folder_2, dst)
+
 **Jawab**
 
 ### Problem 4b
@@ -113,10 +131,15 @@ Ternyata laptop Isabel masih penuh, bantulah dia untuk delete semua folder dan z
 
 ### Problem 4d
 * Untuk mengisi laptopnya kembali, Isabel ingin mendownload gambar Levi dan Eren secara bergantian setiap harinya
+
 **Jawab**
+
 * Jika Levi, maka nama file nya menjadi levi_YYYYMMDD (Dengan YYYYMMDD adalah tahun, bulan, dan tanggal gambar tersebut di download)
+
 **Jawab**
+
 * Jika Eren, maka nama file nya menjadi eren_YYYYMMDD (Dengan YYYYMMDD adalah tahun, bulan, dan tanggal gambar tersebut di download)
+
 **Jawab**
 
 
