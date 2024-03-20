@@ -6,14 +6,13 @@ folder_zip() {
     zip -r "ayang_$nomor_folder.zip" "folder_$nomor_folder"
 }
 
-#inisialisasi jam saat ini
-jam_sekarang=$(date +"%H")
+# Mendapatkan jumlah folder dalam direktori
+jumlah_folder=$(ls -d folder_* | wc -l)
 
-for ((i=1; i<=$jam_sekarang; i++))
+for ((i=1; i<=$jumlah_folder; i++))
 do
     folder="folder_$i"
-    if [[ -d "$folder" ]]; #mengecek apakah folder yang sedang diiterasi ada
-    then
-        folder_zip "$i" #pemanggilan fungsi
+    if [[ -d "$folder" ]]; then
+        folder_zip "$i"
     fi
 done
