@@ -1,0 +1,44 @@
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13247,10884,17,223,10977,0,0,0,,10977
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:46 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13279,10851,17,223,10945,0,0,0,,10945
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:48 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13210,10920,17,223,11014,0,0,0,,11014
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:50 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13205,10926,17,223,11019,0,0,0,,11019
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:53 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13203,10927,17,223,11021,0,0,0,,11021
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:55 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13201,10929,17,223,11022,0,0,0,,11022
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:57 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13196,10934,17,223,11027,0,0,0,,11027
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:53:59 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13201,10930,17,223,11023,0,0,0,,11023
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:54:01 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13269,10861,17,223,10955,0,0,0,,10955
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:54:03 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13283,10847,17,223,10940,0,0,0,,10940
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:54:05 WIB 2024:
+,0
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,13286,10844,17,223,10937,0,0,0,,10937
+Disk usage for path /home/barakallah/metrics at Mon Mar 18 22:54:07 WIB 2024:
+,0
