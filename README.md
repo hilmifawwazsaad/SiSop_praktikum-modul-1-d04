@@ -131,13 +131,7 @@ Ternyata laptop Isabel masih penuh, bantulah dia untuk delete semua folder dan z
 
 ### Problem 4d
 * Untuk mengisi laptopnya kembali, Isabel ingin mendownload gambar Levi dan Eren secara bergantian setiap harinya
-
-**Jawab**
-
 * Jika Levi, maka nama file nya menjadi levi_YYYYMMDD (Dengan YYYYMMDD adalah tahun, bulan, dan tanggal gambar tersebut di download)
-
-**Jawab**
-
 * Jika Eren, maka nama file nya menjadi eren_YYYYMMDD (Dengan YYYYMMDD adalah tahun, bulan, dan tanggal gambar tersebut di download)
 
 **Jawab**
