@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Function to download photos
+#fungsi untuk mendownload foto (4a)
 download_photos() {
     local count=$1
     local folder=$2
@@ -12,37 +12,40 @@ download_photos() {
     done
 }
 
-# Function to check if the hour is even
+#fungsi untuk mengecek apakah waktu adalah genap (4a)
 is_even() {
     local time=$1
     ((time % 2 == 0))
 }
 
-# Function to check if the time is midnight
+#fungsi untuk mengecek apakah waktu adalah tengah malam-00.00 (4a)
 is_midnight() {
     local hour=$1
     local minute=$2
     [[ $hour -eq 0 && $minute -eq 0 ]]
 }
 
-# Function to update the last execution time
+#inisialisasi variabel last_execution_time
+last_execution_time=0
+#fungsi untuk mengupdate waktu eksekusi terakhir 
 update_last_execution_time() {
     last_execution_time=$(date +%s)
+    echo "$last_execution_time" > ~/.last_execution_time
     echo "Update waktu eksekusi terakhir: $(date)"
 }
 
-# Function to create zip from a specified folder
+#fungsi untuk membuat zip dari folder (4b)
 folder_zip() {
     nomor_folder=$1
     zip -r "ayang_$nomor_folder.zip" "folder_$nomor_folder"
 }
 
 
-# Function to delete folders and zips
+#fungsi untuk menghapus folder dan zip (4c)
 delete_folders_and_zips() {
     local directory="$1"
 
-    # Delete folders
+    #inisialisasi variabel untuk mengecek apakah ada folder di direktori
     local folder_ditemukan=false
     for folder in "$directory"/folder_*; do
         if [ -d "$folder" ]; then
@@ -52,12 +55,12 @@ delete_folders_and_zips() {
         fi
     done
 
-    # Check if no folder in directory
+    #cek jika tidak ada folder di direktori
     if ! $folder_ditemukan; then
         echo "Tidak ada folder di direktori $directory"
     fi
 
-    # Delete zips
+    #inisialisasi variabel untuk mengecek apakah ada zip di direktori
     local zip_ditemukan=false
     for zip_file in "$directory"/ayang_*.zip; do
         if [ -f "$zip_file" ]; then
@@ -67,25 +70,25 @@ delete_folders_and_zips() {
         fi
     done
 
-    # Check if no zip in directory
+    #cek jika tidak ada zip di direktori
     if ! $zip_ditemukan; then
         echo "Tidak ada zip di direktori $directory"
     fi
 }
 
-# Function to download either Levi or Eren photo
+#fungsi untuk mendownload foto Levi atau Eren(4d)
 download_foto() {
     local character=$1
     local tanggal=$(date +"%Y%m%d")
 
     if [[ "$character" == "levi" ]]; then
         wget -O "levi_$tanggal.jpg" "https://i.pinimg.com/564x/0d/a7/a1/0da7a17b89ea6ee5b62a7eee2f7af31b.jpg"
-        echo "Downloaded foto Levi"
+        echo "Download foto Levi berhasil"
     elif [[ "$character" == "eren" ]]; then
         wget -O "eren_$tanggal.jpg" "https://i.pinimg.com/564x/66/96/dc/6696dc04a235984e905a88c2607c7ffe.jpg"
-        echo "Downloaded foto Eren"
+        echo "Download foto Eren berhasil"
     else
-        echo "Invalid character. Please specify 'levi' or 'eren'."
+        echo "Karakter tidak valid, silahkan tentukan 'levi' atau 'eren'."
     fi
 }
 
@@ -96,18 +99,23 @@ main() {
     local last_folder_number=$(ls -d folder_* 2>/dev/null | wc -l)
     local folder_counter=$((last_folder_number + 1))
 
-    echo "Jam sekarang: $current_hour, Menit sekarang: $current_minute"
-
-    # Call the appropriate function based on the argument provided
+    #panggil fungsi sesuai argumen
     if [ "$1" = "4a" ]; then
-        # If it's midnight, download 10 photos
+        echo "Jam sekarang: $current_hour, Menit sekarang: $current_minute"
+        if [[ -f ~/.last_execution_time ]]; then
+            last_execution_time=$(cat ~/.last_execution_time)
+            time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 ))
+        else
+            time_diff=0
+        fi
+        #jika jam 00.00, download 10 foto
         if is_midnight "$current_hour" "$current_minute"; then
             folder_counter=$((folder_counter + 1))
             download_photos 10 "folder_$folder_counter"
             echo "Download 10 foto pada tengah malam (00.00)."
         else
-            # If the time difference is 5 hours, download 5 photos if the hour is even, 3 photos otherwise
-            if (( time_diff = 5 )); then
+            #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
+            if (( time_diff == 5 )); then
                 if is_even "$current_hour"; then
                     download_photos 5 "folder_$folder_counter"
                     echo "Download 5 foto pada jam genap."
@@ -116,14 +124,14 @@ main() {
                     echo "Download 3 foto pada jam ganjil."
                 fi
 
-                # Update the last execution time
+                #update waktu eksekusi terakhir
                 update_last_execution_time
             else
                 echo "Tidak ada foto yang di download. Terakhir dijalankan $time_diff jam yang lalu."
             fi
         fi
     elif [ "$1" = "4b" ]; then
-        jumlah_folder=$(ls -d folder_* | wc -l)
+        jumlah_folder=$(ls -d folder_* | wc -l) #mendapatkan jumlah folder dalam direktori
         for ((i=1; i<=$jumlah_folder; i++)); do
             folder="folder_$i"
             if [[ -d "$folder" ]]; then
@@ -131,7 +139,7 @@ main() {
             fi
         done
     elif [ "$1" = "4c" ]; then
-        delete_folders_and_zips "/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4"
+        delete_folders_and_zips "/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4" #letak directory peyimpanan folder dan zip
     elif [ "$1" = "4d" ]; then
         if [[ -f ~/.last_downloaded ]]; then
             last_downloaded=$(cat ~/.last_downloaded)
