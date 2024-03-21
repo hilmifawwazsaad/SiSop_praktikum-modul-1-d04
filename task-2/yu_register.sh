@@ -11,10 +11,10 @@ touch resources/data-pkm.csv
 user_data=$(echo "${input_text}\n" | sed 's/ //g; s/,/ /g')
   # Convert input data to space-separated string
 if grep -qi ${input_data[1]} resources/data-pkm.csv; then
-    echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: ERROR ${input_data[1]} already existed" >> resources/log2.txt
+    echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: ERROR ${input_data[1]} already existed" >> task-2/output/log_reg.txt
     exit 1
 fi
 echo "${input_data[*]}" >> resources/data-pkm.csv
 
 # Print success message
-echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> resources/log2.txt
+echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> task-2/output/log_reg.txt

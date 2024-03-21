@@ -25,7 +25,7 @@ extract_password() {
 
 # Fungsi untuk menulis nama dan password ke dalam file teks beserta timestamp
 write_to_file() {
-    output_file="resources/log3.txt"
+    output_file="task-2/output/users.txt"
     > $output_file  # Bersihkan file teks sebelum menambahkan data baru
     for ((i=0; i<${#names[@]}; i++)); do
         echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> $output_file
