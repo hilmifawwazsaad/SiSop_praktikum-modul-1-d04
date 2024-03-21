@@ -1,4 +1,4 @@
 @hourly /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-a.sh
-@hourly /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-b.sh
+0 */10 * * * /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-b.sh
 0 2 * * * /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-c.sh 
 @daily /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel-d.sh
