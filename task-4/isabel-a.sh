@@ -26,7 +26,7 @@ is_midnight() {
 }
 
 #variabel untuk menyimpan waktu terakhir eksekusi
-#last_execution_time=0
+last_execution_time=0
 
 #fungsi untuk mendapatkan waktu terakhir eksekusi
 #get_last_execution_time() {
