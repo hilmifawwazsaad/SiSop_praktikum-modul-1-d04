@@ -18,3 +18,5 @@ echo "${input_data[*]}" >> resources/data-pkm.csv
 
 # Print success message
 echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> task-2/output/log_reg.txt
+
+
