@@ -1,8 +1,1 @@
-Nama dan password ditemukan: NUR FTIRS0029119304
-Nama atau password gada: NUR FTIRS002911930
-03/22/2024 01:51:42
-Nama dan password ditemukan: NUR FTIRS0029119304
-03/22/2024 01:54:53 LOGIN: SUCCESS NUR is logged in
-LOGIN: SUCCESS NUR is logged in
-03/22/2024 02:05:53 LOGIN: SUCCESS NUR is logged in
-03/22/2024 02:06:27 LOGIN: SUCCESS NUR is logged in
+
