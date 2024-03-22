@@ -741,6 +741,7 @@ Isabel sedang LDR dengan pacarnya dan sangat rindu. Isabel ingin menyimpan semua
 **Jawab**
 
 Sebelumnya, kami menggunakan main function untuk mengeksekusi program 4a dengan bantuan argumen `4a`. Untuk soal selanjutnya juga menggunakan argumen 4b, 4c, dan 4d karena script dijalankan secara bersamaan dalam satu file isabel.sh
+
 1. Di Main function mendeklarasikan waktu saat ini dan jumlah folder dengan pola increment dalam direktori saat ini
 ```bash
 local current_hour=$(date +"%H")
@@ -756,6 +757,7 @@ Detail :
 - `2>/dev/null` adalah perintah untuk mengarahkan output dari standar error (stderr) ke `dev/null` yang merupakan sebuah perangkat yang digunakan untuk membuang data.
 - `|` pipe operator untuk mengarahkan output dari perintah sebelumnya ke input perintah berikutnya
 - `wc -l` (word count) digunakan untuk menghitung jumlah baris
+
 2. Membuat fungsi di luar Main Function. Untuk fungsi pertama adalah fungsi untuk mengecek apakah waktu saat ini adalah jam genap
 ```bash
 is_even() {
@@ -773,6 +775,7 @@ is_midnight() {
 ```
 Detail :
 - `[[ $hour -eq 0 && $minute -eq 0 ]]` digunakan untuk mengecek apakah nilai variabel `hour` sama dengan 0 dan nilai variabel `minute` juga sama dengan 0. Jika kondisi benar, maka akan mengembalikan nilai true, Jika kondisi tidak sesuai, akan mengembalikan nilai false,
+
 4. Fungsi ketiga adalah fungsi yang digunakan untuk mendownload foto 
 ```bash
 download_photos() {
@@ -786,6 +789,90 @@ download_photos() {
     done
 }
 ```
+Detail :
+- `local count=$1` diinisialisasi dengan nilai dari parameter utama fungsi yang diasumsikan sebagai jumlah foto yang akan diunduh
+- `local folder=$2` diinisalisasi dengan nilai dari parameter kedua fungsi yang merupakan nama folder sebagai tempat menyimpan foto
+- `mkdir -p "$folder" untuk membuat direktori dengan nama yang disimpan dalam variabel `folder`. `-p` digunakan agar tidak ada error ketika direktori sudah ada
+- `wget --show-progress --progress=bar -q -O "$folder/foto_$i.jpg"` memiliki command `wget` digunakan untuk mengunduh foto dari URL yang dicantumkan. Foto yang diunduh akan disimpan dalam format penamaan `foto_$i.jpg` dalam folder yang sudah ditentukan. Penamaan file ini dapat dikontrol karena terdapat `-O` dalam command tersebut
+- `--show-progress --progresss=bar` digunakan untuk menampilkan progres pengunduhan dalam bentuk bar
+- `-q` membuat `wget` berjalan dalam mode diam dan mengurangi pesan yang ditampilkan ke layar
+
+5. Fungsi keempat adalah fungsi untuk melacak waktu terakhir eksekusi dan menyimpannya dalam variabel dan juga file.
+```bash
+#inisialisasi variabel last_execution_time
+last_execution_time=0
+#fungsi untuk mengupdate waktu eksekusi terakhir 
+update_last_execution_time() {
+    last_execution_time=$(date +%s)
+    echo "$last_execution_time" > ~/.last_execution_time
+    echo "Update waktu eksekusi terakhir: $(date)"
+}
+```
+Detail :
+- `%s` pada `$(date +%s)` digunakan untuk memformat output `date` agar mengembalikan waktu dalam format detik sejak Epoch. Epoch adalah waktu referensi dalam Unix yang biasanya dimulai pada 1 Januari 1970
+- `echo "$last_execution_time" > ~/.last_execution_time` digunakan untuk menyimpan nilai `$last_execution_time` ke dalam file `~/.last_execution_time` dengan bantuan operator >. `~/`menunjukkan bahwa file berada di direktori home 
+
+6. Selanjutnya kembali ke Main Function untuk melanjutkan program dari no 1. Di sini, kita mulai menggunakan parameter untuk mengeksekusi problem 4a. Parameter yang digunakan adalah `4a`
+```bash
+if [ "$1" = "4a" ]; then
+        echo "Jam sekarang: $current_hour, Menit sekarang: $current_minute"
+        if [[ -f ~/.last_execution_time ]]; then
+            last_execution_time=$(cat ~/.last_execution_time)
+            time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 ))
+        else
+            time_diff=0
+        fi
+        #jika jam 00.00, download 10 foto
+        if is_midnight "$current_hour" "$current_minute"; then
+            folder_counter=$((folder_counter + 1))
+            download_photos 10 "folder_$folder_counter"
+            echo "Download 10 foto pada tengah malam (00.00)."
+        else
+            #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
+            if (( time_diff >= 5 )); then
+                if is_even "$current_hour"; then
+                    download_photos 5 "folder_$folder_counter"
+                    echo "Download 5 foto pada jam genap."
+                else
+                    download_photos 3 "folder_$folder_counter"
+                    echo "Download 3 foto pada jam ganjil."
+                fi
+
+                #update waktu eksekusi terakhir
+                update_last_execution_time
+            else
+                echo "Tidak ada foto yang di download. Terakhir dijalankan $time_diff jam yang lalu."
+            fi
+        fi
+```
+Detail : 
+- `-f` digunakan untuk mengecek apakah file `~/.last_execution_time` ada atau tidak
+- `last_execution_time=$(cat ~/.last_execution_time)` untuk membaca nilai waktu terakhir yang disimpan di dalamnya dan menetapkannya ke dalam variabel `last_exexution_time` dengan command `cat`
+- `time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 ))` adalah perhitungan untuk menghitung selisih waktu antara waktu sekarang dan waktu eksekusi terakhir dalam jam
+- `folder_counter=$((folder_counter + 1))` menunjukkan bahwa nilai folder_counter akan diincrement agar sesuai dengan folder baru yang akan dibuat
+- `download_photos 10 "folder_$folder_counter"` pemanggilan fungsi `download_photos` untuk mengunduh 10 foto. Fungsi ini akan membuat folder baru dengan nama `folder_$folder_counter` (sesuai dengan nilai folder_counter yang baru diincrement) dan mengunduh 10 foto ke dalamnya
+- Poin detail 4-5 akan berulang untuk kondisi setelah 5 jam sejak eksekusi terakhir. Untuk jam genap akan mendowload 5 foto, sedangkan jam ganjil mendownload 3 foto
+- Pemanggilan fungsi `update_last_execution_time` untuk memperbarui waktu eksekusi terakhir
+
+7. **Cronjob**. Disini kami menggunakan cron untuk menjalankan script `isabel.sh 4a` setiap satu jam sekali. Hal ini dikarenakan terdapat 2 kondisi yang harus terjadi. Kondisi pertama adalah mendownload foto setiap 5 jam sekali sesuai dengan jam saat ini (jam genap download 5 foto, jam ganjil download 3 foto). Kondisi kedua adalah setiap pukul 00.00 pasti mendownload 10 foto terlepas dari kondisi pertama
+```bash
+@hourly /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh 4a
+```
+Detail :
+- `@hourly` menunjukkan bahwa argumen `4a` pada file `isabel.sh` dijalankan setiap satu jam sekali
+- `/bin/bash` digunakan untuk menunjukkan bahwa perintah dijalankan dengan menggunakan shell bash
+- `/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh 4a` menunjukkan path dari file `isabel.sh`.
+- `4a` adalah argumen yang dijalankan dalam file `isabel.sh`
+
+8. **Dokumentasi**
+- Execute `isabel.sh 4a`
+![alt text](image.png)
+- Folder yang terbentuk
+![alt text](image-1.png)
+- Ketika execute belum memenuhi kondisi pertama dan kedua
+![alt text](image-2.png)
+
+
 ### Problem 4b
 Isabel harus melakukan zip setiap 1 jam dengan nama zip ayang_NOMOR.ZIP dengan NOMOR.ZIP adalah urutan folder saat dibuat (ayang_1, ayang_2, dst). Yang di ZIP hanyalah folder dari soal di atas.
 
