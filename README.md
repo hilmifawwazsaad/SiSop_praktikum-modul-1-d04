@@ -115,6 +115,7 @@ Isabel sedang LDR dengan pacarnya dan sangat rindu. Isabel ingin menyimpan semua
 * File batch yang didownload akan dimasukkan ke dalam folder dengan format nama folder_NOMOR.FOLDER dengan NOMOR.FOLDER adalah urutan folder saat dibuat (folder_1, folder_2, dst)
 
 **Jawab**
+
 Sebelumnya, kami menggunakan main function untuk mengeksekusi program 4a dengan bantuan argumen `4a`. Untuk soal selanjutnya juga menggunakan argumen 4b, 4c, dan 4d karena script dijalankan secara bersamaan dalam satu file isabel.sh
 1. Di Main function mendeklarasikan waktu saat ini dan jumlah folder dengan pola increment dalam direktori saat ini
 ```bash
@@ -123,14 +124,14 @@ local current_minute=$(date +"%M")
 local last_folder_number=$(ls -d folder_* 2>/dev/null | wc -l)
 local folder_counter=$((last_folder_number + 1))
 ```
-> Detail :
-> `local` menunjukkan bahwa variabel tersebut hanya dapat diakses di dalam fungsi itu sendiri dan tidak akan terlihat di luar fungsi. Selain itu, juga untuk mencegah terjadinya konflik nama variabel
-> `$(date + "%H)` untuk mendapatkan jam saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel lokal `current_hour`
-> `$(date + "%M")` untuk mendapatkan menit saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel loka `current_minute`
-> `ls -d folder_*` adalah perintah `ls` untuk mencari pola nama `folder_*`. `-d` digunakan untuk menampilkan nama direktori yang cocok dengan pola tersebut
-> `2>/dev/null` adalah perintah untuk mengarahkan output dari standar error (stderr) ke `dev/null` yang merupakan sebuah perangkat yang digunakan untuk membuang data.
-> `|` pipe operator untuk mengarahkan output dari perintah sebelumnya ke input perintah berikutnya
-> `wc -l` (word count) digunakan untuk menghitung jumlah baris
+Detail :
+- `local` menunjukkan bahwa variabel tersebut hanya dapat diakses di dalam fungsi itu sendiri dan tidak akan terlihat di luar fungsi. Selain itu, juga untuk mencegah terjadinya konflik nama variabel
+- `$(date + "%H)` untuk mendapatkan jam saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel lokal `current_hour`
+- `$(date + "%M")` untuk mendapatkan menit saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel loka `current_minute`
+- `ls -d folder_*` adalah perintah `ls` untuk mencari pola nama `folder_*`. `-d` digunakan untuk menampilkan nama direktori yang cocok dengan pola tersebut
+- `2>/dev/null` adalah perintah untuk mengarahkan output dari standar error (stderr) ke `dev/null` yang merupakan sebuah perangkat yang digunakan untuk membuang data.
+- `|` pipe operator untuk mengarahkan output dari perintah sebelumnya ke input perintah berikutnya
+- `wc -l` (word count) digunakan untuk menghitung jumlah baris
 2. Membuat fungsi di luar Main Function. Untuk fungsi pertama adalah fungsi untuk mengecek apakah waktu saat ini adalah jam genap
 ```bash
 is_even() {
@@ -146,8 +147,8 @@ is_midnight() {
     [[ $hour -eq 0 && $minute -eq 0 ]]
 }
 ```
-> Detail :
-> `[[ $hour -eq 0 && $minute -eq 0 ]]` digunakan untuk mengecek apakah nilai variabel `hour` sama dengan 0 dan nilai variabel `minute` juga sama dengan 0. Jika kondisi benar, maka akan mengembalikan nilai true, Jika kondisi tidak sesuai, akan mengembalikan nilai false,
+Detail :
+- `[[ $hour -eq 0 && $minute -eq 0 ]]` digunakan untuk mengecek apakah nilai variabel `hour` sama dengan 0 dan nilai variabel `minute` juga sama dengan 0. Jika kondisi benar, maka akan mengembalikan nilai true, Jika kondisi tidak sesuai, akan mengembalikan nilai false,
 4. Fungsi ketiga adalah fungsi yang digunakan untuk mendownload foto 
 ```bash
 download_photos() {
