@@ -27,13 +27,15 @@ min_swap_free=999999
 max_swap_free=0
 min_path_size=999
 max_path_size=0
+path_size_mb=0
 total_records=0
 
 #memproses setiap file log
 for file in $log_files; do
     #membaca data dari file log
+    ((total_records++))
     while IFS=, read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
-        ((total_records++))
+        
         #memperbarui nilai minimum dan maksimum
         if [[ $mem_total -lt $min_mem_total ]]; then
             min_mem_total=$mem_total
@@ -89,14 +91,52 @@ for file in $log_files; do
         if [[ $swap_free -gt $max_swap_free ]]; then
             max_swap_free=$swap_free
         fi
-        #konversi path_size ke MB
-        path_size_mb=$(echo "scale=2; $path_size / 1024" | bc)
-        if [[ $(echo "$path_size_mb < $min_path_size" | bc) -eq 1 ]]; then
-            min_path_size=$path_size_mb
+
+        # Function to convert human-readable size to megabytes
+        function convert_to_mb() {
+            local size_str=$1
+            local size_unit=${size_str: -1} # Get the last character which represents the unit
+            local size_value=${size_str:0:-1} # Get the value without the unit
+            local size_mb=0
+
+            case $size_unit in
+                "G")
+                    size_mb=$(( size_value * 1024 ))
+                    ;;
+                "M")
+                    size_mb=$size_value
+                    ;;
+                *)
+                    echo "Invalid unit: $size_unit"
+                    ;;
+            esac
+
+            echo $size_mb
+        }
+
+        # Example usage:
+        # size_mb=$(convert_to_mb "125M")
+        # echo $size_mb
+
+        # Assuming $path_size is a string like '125M'
+        path_size=$(echo "$path_size" | sed 's/[^0-9M]//g')
+
+        # Check if path_size contains numeric value
+        if [[ $path_size =~ ^[0-9]+[GM]$ ]]; then
+            path_size_mb=$(convert_to_mb $path_size)
+
+            # Update min_path_size if necessary
+            if (( path_size_mb < min_path_size )); then
+                min_path_size=$path_size_mb
+            fi
+
+            # Update max_path_size if necessary
+            if (( path_size_mb > max_path_size )); then
+                max_path_size=$path_size_mb
+            fi
         fi
-        if [[ $(echo "$path_size_mb > $max_path_size" | bc) -eq 1 ]]; then
-            max_path_size=$path_size_mb
-        fi
+        total_path_size=$((min_path_size + max_path_size))
+
     done < $file
 done
 
@@ -113,6 +153,7 @@ avg_swap_free=$(( (min_swap_free + max_swap_free) / 2 ))
 avg_path_size=$(( (min_path_size + max_path_size) / 2 ))
 
 #menyimpan hasil aggregasi ke dalam file
+echo $total_records
 echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,/home/$(whoami)/,$min_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$(whoami)/,$max_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
