@@ -28,8 +28,7 @@ write_to_file() {
     output="$save_path/users.txt"
     mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
     txt_file="$output"
-    echo "$(date '+%Y-%m-%d %H:%M:%S'): Data nama dan password yang diperbarui" > "$txt_file"
-    for ((i=0; i<${#names[@]}; i++)); do
+    for ((i=0; i<${names[@]}; i++)); do
         echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> "$txt_file"
     done
     echo "Data nama dan password telah berhasil diperbarui pada: $(date '+%Y-%m-%d %H:%M:%S')" >> "$txt_file"
@@ -39,4 +38,6 @@ write_to_file() {
 
 extract_names
 extract_password
+export names
+export passwords
 write_to_file
