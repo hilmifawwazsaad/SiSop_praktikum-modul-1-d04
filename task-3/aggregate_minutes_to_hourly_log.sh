@@ -1,92 +1,12 @@
-# #!/bin/bash
-
-# # Directory containing individual log files
-# log_dir="/home/$(whoami)/metrics"
-
-# # Change permissions for log files
-# # chmod -R a+rw "$log_dir"/*.log
-
-# # Function to aggregate log files
-# aggregate_logs() {
-#   local log_dir="$1"
-#   local hour="$2"
-
-#   # Check if the log directory exists
-#   if [ ! -d "$log_dir" ]; then
-#     echo "Log directory '$log_dir' not found."
-#     return
-#   fi
-
-#   # Get all log files in the directory
-#   local log_files=("$log_dir"/metrics_*.log)
-
-#   # Check if there are log files available
-#   if [ ${#log_files[@]} -eq 0 ]; then
-#     echo "No log files found in '$log_dir'."
-#     return
-#   fi
-
-#   # Initialize arrays to store metric values
-#   declare -A metrics
-
-#   # Process each log file
-#   for file in "${log_files[@]}"; do
-#     # Read the second line of the file
-#     read -r _ values < "$file"
-#     IFS=',' read -r -a metrics_values <<< "$values"
-
-#     # Initialize metric arrays if not yet initialized
-#     for ((i = 0; i < ${#metrics_values[@]}; i++)); do
-#       metric_name=${metrics_values[$i]}
-#       metrics["$metric_name"]=1
-#       metrics["$metric_name"+"_min"]=99999999
-#       metrics["$metric_name"+"_max"]=-1
-#       metrics["$metric_name"+"_sum"]=0
-#       metrics["$metric_name"+"_count"]=0
-#     done
-
-#     # Read the values from the third line onwards
-#     tail -n +3 "$file" | while IFS=',' read -r values; do
-#       IFS=',' read -r -a metrics_values <<< "$values"
-#       for ((i = 0; i < ${#metrics_values[@]}; i++)); do
-#         metric_name=${metrics_values[$i]}
-#         value=${metrics_values[$i]}
-#         # Update metric values
-#         metrics["$metric_name"+"_min"]=$(awk "BEGIN{print (${metrics["$metric_name"+"_min"]} < $value) ? ${metrics["$metric_name"+"_min"]} : $value}")
-#         metrics["$metric_name"+"_max"]=$(awk "BEGIN{print (${metrics["$metric_name"+"_max"]} > $value) ? ${metrics["$metric_name"+"_max"]} : $value}")
-#         ((metrics["$metric_name"+"_sum"] += value))
-#         ((metrics["$metric_name"+"_count"]++))
-#       done
-#     done
-#   done
-
-#   # Write aggregated metrics to file
-#   agg_file="$log_dir/metrics_agg_${hour}.log"
-#   echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > "$agg_file"
-#   for metric_name in "${!metrics[@]}"; do
-#     if [[ $metric_name != *"_min" && $metric_name != *"_max" && $metric_name != *"_sum" && $metric_name != *"_count" ]]; then
-#       type="average"
-#       value=$(awk "BEGIN {print ${metrics["$metric_name"+"_sum"]} / ${metrics["$metric_name"+"_count"]}}")
-#       echo "$type,${metrics["$metric_name"+"_min"]},${metrics["$metric_name"+"_max"]},$value" | sed "s#$metric_name#$hour#g" >> "$agg_file"
-#     fi
-#   done
-# }
-
-# # Get the current hour in YmdH format
-# current_hour=$(date +"%Y%m%d%H")
-
-# # Aggregate logs for the current hour
-# aggregate_logs "$log_dir" "$current_hour"
-
 #!/bin/bash
 
-# Mendapatkan waktu saat ini
+#mendapatkan waktu saat ini
 current_hour=$(date +'%Y%m%d%H')
 
-# Mendapatkan list file log dari satu jam terakhir
+#mendapatkan list file log dari satu jam terakhir
 log_files=$(ls /home/$USER/metrics/metrics_${current_hour}*.log)
 
-# Inisialisasi nilai minimum dan maksimum
+#nisialisasi nilai minimum dan maksimum
 min_mem_total=999999
 max_mem_total=0
 min_mem_used=999999
@@ -109,12 +29,12 @@ min_path_size=999
 max_path_size=0
 total_records=0
 
-# Memproses setiap file log
+#memproses setiap file log
 for file in $log_files; do
-    # Membaca data dari file log
+    #membaca data dari file log
     while IFS=, read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
         ((total_records++))
-        # Memperbarui nilai minimum dan maksimum
+        #memperbarui nilai minimum dan maksimum
         if [[ $mem_total -lt $min_mem_total ]]; then
             min_mem_total=$mem_total
         fi
@@ -169,7 +89,7 @@ for file in $log_files; do
         if [[ $swap_free -gt $max_swap_free ]]; then
             max_swap_free=$swap_free
         fi
-        # Konversi path_size ke MB
+        #konversi path_size ke MB
         path_size_mb=$(echo "scale=2; $path_size / 1024" | bc)
         if [[ $(echo "$path_size_mb < $min_path_size" | bc) -eq 1 ]]; then
             min_path_size=$path_size_mb
@@ -180,7 +100,7 @@ for file in $log_files; do
     done < $file
 done
 
-# Menghitung rata-rata
+#menghitung rata-rata
 avg_mem_total=$(( (min_mem_total + max_mem_total) / 2 ))
 avg_mem_used=$(( (min_mem_used + max_mem_used) / 2 ))
 avg_mem_free=$(( (min_mem_free + max_mem_free) / 2 ))
@@ -192,7 +112,7 @@ avg_swap_used=$(( (min_swap_used + max_swap_used) / 2 ))
 avg_swap_free=$(( (min_swap_free + max_swap_free) / 2 ))
 avg_path_size=$(( (min_path_size + max_path_size) / 2 ))
 
-# Menyimpan hasil aggregasi ke dalam file
+#menyimpan hasil aggregasi ke dalam file
 echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > /home/$USER/metrics/metrics_agg_${current_hour}.log
 echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,/home/$USER/test/,$min_path_size" >> /home/$USER/metrics/metrics_agg_${current_hour}.log
 echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$USER/test/,$max_path_size" >> /home/$USER/metrics/metrics_agg_${current_hour}.log
