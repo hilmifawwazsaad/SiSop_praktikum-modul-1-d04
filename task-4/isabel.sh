@@ -40,7 +40,6 @@ folder_zip() {
     zip -r "ayang_$nomor_folder.zip" "folder_$nomor_folder"
 }
 
-
 #fungsi untuk menghapus folder dan zip (4c)
 delete_folders_and_zips() {
     local directory="$1"
@@ -102,12 +101,15 @@ main() {
     #panggil fungsi sesuai argumen
     if [ "$1" = "4a" ]; then
         echo "Jam sekarang: $current_hour, Menit sekarang: $current_minute"
-        if [[ -f ~/.last_execution_time ]]; then
-            last_execution_time=$(cat ~/.last_execution_time)
-            time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 ))
-        else
-            time_diff=0
+        
+        #cek apa sudah ada file last_execution_time
+        if [[ ! -f ~/.last_execution_time ]]; then
+            echo $(date +%s) > ~/.last_execution_time
         fi
+
+        last_execution_time=$(cat ~/.last_execution_time)
+        time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 )) #menghitung perbedaan waktu dalam jam
+
         #jika jam 00.00, download 10 foto
         if is_midnight "$current_hour" "$current_minute"; then
             folder_counter=$((folder_counter + 1))
@@ -115,7 +117,8 @@ main() {
             echo "Download 10 foto pada tengah malam (00.00)."
         else
             #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
-            if (( time_diff >= 5 )); then
+            if (( time_diff == 5 )); then
+                time_diff=0
                 if is_even "$current_hour"; then
                     download_photos 5 "folder_$folder_counter"
                     echo "Download 5 foto pada jam genap."
@@ -123,8 +126,7 @@ main() {
                     download_photos 3 "folder_$folder_counter"
                     echo "Download 3 foto pada jam ganjil."
                 fi
-
-                #update waktu eksekusi terakhir
+                #update waktu eksekusi terakhir setelah pengunduhan dilakukan
                 update_last_execution_time
             else
                 echo "Tidak ada foto yang di download. Terakhir dijalankan $time_diff jam yang lalu."
