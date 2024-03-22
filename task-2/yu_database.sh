@@ -2,7 +2,6 @@
 
 # Lokasi file CSV
 pkm_csv_file="resources/data-pkm.csv"
-
 # Fungsi untuk mengekstrak nama dari file CSV
 extract_names() {
     names=()
