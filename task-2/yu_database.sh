@@ -25,16 +25,17 @@ extract_password() {
 # Fungsi untuk menulis nama dan password ke dalam file teks beserta timestamp
 write_to_file() {
     save_path="/home/$(whoami)/txt_test"
-    output="$save_path/output.txt"
+    output="$save_path/users.txt"
     mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
     txt_file="$output"
-    touch "$txt_file"  # Buat file log jika belum ada
-    echo "$(date '+%Y-%m-%d %H:%M:%S'): Data nama dan password yang diperbarui" >> $txt_file
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): Data nama dan password yang diperbarui" > "$txt_file"
     for ((i=0; i<${#names[@]}; i++)); do
-        echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> $txt_file
+        echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> "$txt_file"
     done
-    echo "Data nama dan password telah berhasil diperbarui pada: $(date)" >> $txt_file
+    echo "Data nama dan password telah berhasil diperbarui pada: $(date '+%Y-%m-%d %H:%M:%S')" >> "$txt_file"
 }
+
+
 
 extract_names
 extract_password
