@@ -33,15 +33,222 @@ Karena Belmawa menetapkan judul maksimum proposal 20 kata, maka komandan ingin m
 
 **Jawab**
 
+*1. Inisiasi awal, variabel file pkm dan separator \t*
+```bash
+#!/bin/bash
+pkm_tsv_file="resources/DataPKM.tsv"
+awk -F'\t' '
+```
+Detail :
+- `pkm_tsv_file="resources/DataPKM.tsv"` 
+inisiasi variabel pkm_tsv_file yang didapat dari resources/DataPKM.tsv
+- `awk -F'\t' '` 
+menggunakan separator \t untuk memberi tahu awk bahwa tab adalah pemisah
+
+*2. Inisiasi awal, variabel maks_judul dan print no dan nama pengusul sebagai baris teratas*
+```bash
+BEGIN {
+    maksimum_judul = 20
+    print "No. Nama Pengusul"
+}
+```
+Detail :
+- `BEGIN` 
+inisiasi variabel untuk menyimpan nilai dari judul maks
+- `print "No. Nama Pengusul"` 
+menamplkan tulisan No. dan Nama Pengusul pada baris paling atas untuk memperjelas isi data pada kolom
+
+*3. Mengubah underscore menjadi spasi dan memisahkan setiap judul melalui spasi*
+```bash
+{
+    gsub(/_/, " ", $2)
+    split($5, judul, " ")
+```
+Detail :
+- `gsub (/_/, " ", $2)` 
+mengubah antara underscore menjadi spasi pada kolom kedua (kolom nama pengusul)
+- `split($5, judul, " ")` 
+memisahkan setiap spasi untuk dideteksi pada kolom judul (kolom judul)
+
+*4. Menampilkan judul yang lebih dari 20 kata*
+```bash
+    if (length(judul) > maksimum_judul) {
+        printf "%s\t%s\n", $1, $2
+    }
+}
+' "$pkm_tsv_file"
+```
+Detail :
+- `if (length(judul) > maksimum_judul)` 
+mendeteksi apakah panjang dari judul yang displit tadi melebihi 20 atau tidak, jika iya tampilkan nomor (kolom 1) dan nama pengusul (kolom 2)
+- `' "$pkm_tsv_file"` 
+menjalankan script AWK dan memberikan file TSV yang akan diproses ke dalamnya.
+
+### output
+```bash
+No. Nama Pengusul
+40      MUHAMAD MUFLICH DHIYA`ULHAQ     S1 Teknik Material 
+61      AHMAD RIZAL MAULANA     S1 Fisika 
+123     Ratu Ummu Subarusari    S1 Biologi 
+137     ERIK DWI PRASTIYO       D4 Teknologi Rekayasa Instrumentasi 
+138     Irgi Israr Altamis      S1 Teknik Elektro 
+168     I MADE RECO MANOHARA    S1 Teknik Material 
+175     Farsya Ra`isah Fadhilia S1 Teknik Elektro 
+216     KURNIAWAN HIDAYAT       D4 Teknik Sipil 
+251     MONICA INTAN WIJAYANTI  D4 Teknologi Rekayasa Instrumentasi 
+266     LAZUARDINI DINDA AAQILAH        S1 Perencanaan Wilayah Dan Kota 
+370     AUDYA WYNONA RAYHANNAH JASMINE  D4 Teknologi Rekayasa Kimia Industri 
+396     AMELIA ADERAY PERTIWI   S1 Perencanaan Wilayah Dan Kota 
+415     Rivansyah Raditya Hardinata     S1 Teknik Elektro 
+454     Bintang Averusiya Muhammad      S1 Teknik Elektro 
+480     NUR FAJARIN DWITASARI   S1 Teknik Industri 
+```
 ### Problem 1b
 Komandan PKM juga tertarik ingin tahu antusiasme dan partisipasi mahasiswa sehingga meminta Bubu menampilkan bidang paling banyak diminati oleh mahasiswa. Tampilkan nama skema saja.
 
 **Jawab**
 
+*1. Inisiasi awal, variabel file pkm dan separator \t*
+```bash
+#!/bin/bash
+pkm_tsv_file="resources/DataPKM.tsv"
+awk -F'\t' '
+```
+Detail :
+- `pkm_tsv_file="resources/DataPKM.tsv"` 
+inisiasi variabel pkm_tsv_file yang didapat dari resources/DataPKM.tsv
+- `awk -F'\t' '` 
+menggunakan separator \t untuk memberi tahu awk bahwa tab adalah pemisah
+
+*2. mencari skema yang sama pada kolom 7*
+```bash
+{
+    if ($7 in schema) {
+        schema[$7]++
+    } else {
+        schema[$7] = 1
+    }
+}
+```
+Detail :
+- ` if ($7 in schema) {
+        schema[$7]++}` 
+jika ada skema yang sama maka increment
+- `else {
+        schema[$7] = 1
+    }` 
+jika tidak, isi dengan 1
+
+*3. mencari nilai maks dari keseluruhan skema yang paling diminati*
+```bash
+END {
+    pkm_paling_diminati = 0
+    for (i in schema) {
+        if (schema[i] > pkm_paling_diminati) {
+            pkm_paling_diminati = schema[i]
+            skema_pkm = i
+        }
+    }
+    printf "Skema dengan peminat terbanyak adalah skema %s\n", skema_pkm
+}
+' "$pkm_tsv_file"
+```
+Detail :
+- ` pkm_paling_diminati = 0` 
+inisiasi variabel pkm paling diminati
+- `for (i in schema) ` 
+untuk semua i yang ada dalam skema (yang telah dihitung melalui increment)
+- `if (schema[i] > pkm_paling_diminati) {
+            pkm_paling_diminati = schema[i]
+            skema_pkm = i
+        }` 
+jika skema pada index i lebih dari inisiasi awal (mencari nilai max), maka value direplace, kemudian setelah mendapatkan nilai max, print skema dengan peminat paling banyak
+
+### output
+```bash
+Skema dengan peminat terbanyak adalah skema PKM-RE
+```
+
 ### Problem 1c
 arena ada aturan baru dimana 1 mahasiswa hanya boleh submit 1 proposal, maka komandan juga meminta Bubu untuk memberikan list mahasiswa yang mengajukan 2 proposal. Tampilkan data pembimbingnya karena ingin di kontak komandan.
 
 **Jawab**
+
+*1. Inisiasi awal, variabel file pkm dan separator \t*
+```bash
+#!/bin/bash
+
+pkm_tsv_file="resources/DataPKM.tsv"
+awk -F'\t' '
+```
+
+Detail :
+- `pkm_tsv_file="resources/DataPKM.tsv"` 
+inisiasi variabel pkm_tsv_file yang didapat dari resources/DataPKM.tsv
+- `awk -F'\t' '` 
+menggunakan separator \t untuk memberi tahu awk bahwa tab adalah pemisah
+
+*2. Inisiasi variabel kosong*
+```bash
+BEGIN {
+    mahasiswa = ""
+    dosbing = ""
+}
+```
+Detail :
+- `BEGIN` 
+bagian yang dijalankan sebelum AWK mulai membaca baris file, sehingga dibuat variabel kosong untuk mahasiswa dan dosbing yang diisi ketika read file tsv
+
+
+*3. Inisiasi penempatan variabel dan kolom yang digunakan*
+```bash
+{
+    nama_mhs = $2
+    nama_dosbing = $6
+    gsub(/_/, " ", nama_mhs)
+```
+Detail :
+- `nama_mhs = $2
+    nama_dosbing = $6` 
+inisisasi nama_mhs dan nama_dosbing diambil pada kolom kedua dan keenam
+Detail :
+- `gsub(/_/, " ", nama_mhs)` 
+fungsi gsub digunakan untuk mengganti underscore (_) menjadi spasi ( ) pada kolom nama_mhs
+
+*4. hitung nama mahasiswa dan menambahkan nilai dosen pembimbing melalui index yang sesuai dengan nama_mhs*
+```bash
+    count[nama_mhs]++
+    dosen_pembimbing[nama_mhs] = dosen_pembimbing[nama_mhs] nama_dosbing
+}
+```
+Detail :
+- ` count[nama_mhs]++` 
+menghitung nama_mhs yang memiliki index/string yang sama
+- `dosen_pembimbing[nama_mhs] = dosen_pembimbing[nama_mhs] nama_dosbing` 
+menyimpan daftar dosen pembimbing untuk setiap mahasiswa dalam array dosen_pembimbing.
+
+*5. fungsi untuk menampilkan nama mahasiswa yang lebih dari satu dan dosen pembimbingnya*
+```bash
+END {
+    for (nama_mhs in count) {
+        if (count[nama_mhs] > 1) {
+                printf "nama yang lebih dari 1 adalah %s dengan dosbing %s\n", nama_mhs, dosen_pembimbing[nama_mhs]
+        }
+    }
+}
+' "$pkm_tsv_file"
+```
+Detail :
+- `END` 
+mendapatkan nilai keseluruhan index mhs yang double kemudian di looping sesuai dengan jumlah count. Jika terhitung lebih dari 1 maka akan menampilkan nama mhs dan nama dosen pembimbing yang bersangkutan
+Detail :
+- `' "$pkm_tsv_file"` 
+menjalankan script AWK dan memberikan file TSV yang akan diproses ke dalamnya.
+
+### output
+```bash
+nama yang lebih dari 1 adalah Hanan Aldi dengan dosbing NURUL WIDIASTUTI (0025047104) HAMDAN DWI RIZQI (0701099201)
+```
 
 ### Kendala
 
