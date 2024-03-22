@@ -4,7 +4,7 @@
 current_hour=$(date +'%Y%m%d%H')
 
 #mendapatkan list file log dari satu jam terakhir
-log_files=$(ls /home/$USER/metrics/metrics_${current_hour}*.log)
+log_files=$(ls /home/$(whoami)/metrics/metrics_${current_hour}*.log)
 
 #nisialisasi nilai minimum dan maksimum
 min_mem_total=999999
@@ -113,7 +113,7 @@ avg_swap_free=$(( (min_swap_free + max_swap_free) / 2 ))
 avg_path_size=$(( (min_path_size + max_path_size) / 2 ))
 
 #menyimpan hasil aggregasi ke dalam file
-echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > /home/$USER/metrics/metrics_agg_${current_hour}.log
-echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,/home/$USER/test/,$min_path_size" >> /home/$USER/metrics/metrics_agg_${current_hour}.log
-echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$USER/test/,$max_path_size" >> /home/$USER/metrics/metrics_agg_${current_hour}.log
-echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,/home/$USER/test/,$avg_path_size" >> /home/$USER/metrics/metrics_agg_${current_hour}.log
+echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,/home/$(whoami)/,$min_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$(whoami)/,$max_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,/home/$(whoami)/,$avg_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
