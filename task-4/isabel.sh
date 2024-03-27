@@ -1,13 +1,24 @@
 #!/bin/bash
 
+#absolute path dari direktori penyimpanan folder dan zip
+PATH_ABS="/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4"
+
+#inisialisasi variabel foldercount
+foldercount=0
+#membuat nama folder yang unik
+folder_name="folder_$((++foldercount))"
+while [ -d "$PATH_ABS/$folder_name" ]; do
+    folder_name="folder_$((++folder_count))"
+done
+
 #fungsi untuk mendownload foto (4a)
 download_photos() {
     local count=$1
     local folder=$2
 
-    mkdir -p "$folder"
+    mkdir -p "$PATH_ABS/$folder"
     for ((i=1; i<=$count; i++)); do
-        wget --show-progress --progress=bar -q -O "$folder/foto_$i.jpg" "https://phinemo.com/wp-content/uploads/2017/02/hidup-bebas.jpg"
+        wget --show-progress --progress=bar -q -O "$PATH_ABS/$folder/foto_$i.jpg" "https://phinemo.com/wp-content/uploads/2017/02/hidup-bebas.jpg"
         echo "Download foto_$i.jpg ke $folder"
     done
 }
@@ -34,10 +45,19 @@ update_last_execution_time() {
     echo "Update waktu eksekusi terakhir: $(date)"
 }
 
-#fungsi untuk membuat zip dari folder (4b)
+#fungsi untuk zip folder (4b)
 folder_zip() {
-    nomor_folder=$1
-    zip -r "ayang_$nomor_folder.zip" "folder_$nomor_folder"
+    # Loop melalui setiap folder di dalam PATH_ABS yang belum di-zip
+    for folder in "$PATH_ABS"/folder_*; do
+        # Pastikan itu adalah sebuah direktori dan bukan file zip
+        if [ -d "$folder" ] && [ ! -e "$folder.zip" ]; then
+            # Buat nama file zip baru berdasarkan nomor folder
+            zip_name="$PATH_ABS/ayang_${folder##*_}.zip"
+
+            # Zip folder tanpa memeriksa apakah kosong atau tidak
+            zip -r "$zip_name" "$folder"
+        fi
+    done
 }
 
 #fungsi untuk menghapus folder dan zip (4c)
@@ -81,10 +101,10 @@ download_foto() {
     local tanggal=$(date +"%Y%m%d")
 
     if [[ "$character" == "levi" ]]; then
-        wget -O "levi_$tanggal.jpg" "https://i.pinimg.com/564x/0d/a7/a1/0da7a17b89ea6ee5b62a7eee2f7af31b.jpg"
+        wget -O "$PATH_ABS/levi_$tanggal.jpg" "https://i.pinimg.com/564x/0d/a7/a1/0da7a17b89ea6ee5b62a7eee2f7af31b.jpg"
         echo "Download foto Levi berhasil"
     elif [[ "$character" == "eren" ]]; then
-        wget -O "eren_$tanggal.jpg" "https://i.pinimg.com/564x/66/96/dc/6696dc04a235984e905a88c2607c7ffe.jpg"
+        wget -O "$PATH_ABS/eren_$tanggal.jpg" "https://i.pinimg.com/564x/66/96/dc/6696dc04a235984e905a88c2607c7ffe.jpg"
         echo "Download foto Eren berhasil"
     else
         echo "Karakter tidak valid, silahkan tentukan 'levi' atau 'eren'."
@@ -95,8 +115,6 @@ download_foto() {
 main() {
     local current_hour=$(date +"%H")
     local current_minute=$(date +"%M")
-    local last_folder_number=$(ls -d folder_* 2>/dev/null | wc -l)
-    local folder_counter=$((last_folder_number + 1))
 
     #panggil fungsi sesuai argumen
     if [ "$1" = "4a" ]; then
@@ -112,19 +130,19 @@ main() {
 
         #jika jam 00.00, download 10 foto
         if is_midnight "$current_hour" "$current_minute"; then
-            folder_counter=$((folder_counter + 1))
-            download_photos 10 "folder_$folder_counter"
+            download_photos 10 "$folder_name"
             echo "Download 10 foto pada tengah malam (00.00)."
         else
             #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
-            if (( time_diff >= 5 )); then
+            if (( time_diff == 5 )); then
                 if is_even "$current_hour"; then
-                    download_photos 5 "folder_$folder_counter"
+                    download_photos 5 "$folder_name"
                     echo "Download 5 foto pada jam genap."
                 else
-                    download_photos 3 "folder_$folder_counter"
+                    download_photos 3 "$folder_name"
                     echo "Download 3 foto pada jam ganjil."
                 fi
+                #menginisialisasi time_diff menjadi 0 setelah pengunduhan dilakukan
                 time_diff=0
                 #update waktu eksekusi terakhir setelah pengunduhan dilakukan
                 update_last_execution_time
@@ -133,20 +151,17 @@ main() {
             fi
         fi
     elif [ "$1" = "4b" ]; then
-        jumlah_folder=$(ls -d folder_* | wc -l) #mendapatkan jumlah folder dalam direktori
-        for ((i=1; i<=$jumlah_folder; i++)); do
-            folder="folder_$i"
-            if [[ -d "$folder" ]]; then
-                folder_zip "$i"
-            fi
-        done
+        folder_zip
     elif [ "$1" = "4c" ]; then
-        delete_folders_and_zips "/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4" #letak directory peyimpanan folder dan zip
+        delete_folders_and_zips "$PATH_ABS" #letak directory peyimpanan folder dan zip
     elif [ "$1" = "4d" ]; then
+        if [[ ! -f ~/.last_downloaded ]]; then
+            touch ~/.last_downloaded
+            echo "File .last_downloaded telah dibuat."
+        fi
+
         if [[ -f ~/.last_downloaded ]]; then
             last_downloaded=$(cat ~/.last_downloaded)
-        else
-            last_downloaded=""
         fi
 
         if [[ "$last_downloaded" == "levi" ]]; then
