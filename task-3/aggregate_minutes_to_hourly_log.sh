@@ -158,3 +158,5 @@ echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_to
 echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,/home/$(whoami)/,$min_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$(whoami)/,$max_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,/home/$(whoami)/,$avg_path_size" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+
+chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
