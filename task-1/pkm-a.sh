@@ -19,7 +19,7 @@ BEGIN {
     # Check if the title length is greater than the maximum
     if (length(judul) > maksimum_judul) {
         #print output
-        printf "%s\t%s\n", $1, $2
+        printf "%s\t%s\t%s\n", $1, $2, $3
     }
 }
 ' "$pkm_tsv_file"
