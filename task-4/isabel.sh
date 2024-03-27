@@ -118,7 +118,6 @@ main() {
         else
             #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
             if (( time_diff == 5 )); then
-                time_diff=0
                 if is_even "$current_hour"; then
                     download_photos 5 "folder_$folder_counter"
                     echo "Download 5 foto pada jam genap."
@@ -126,6 +125,7 @@ main() {
                     download_photos 3 "folder_$folder_counter"
                     echo "Download 3 foto pada jam ganjil."
                 fi
+                time_diff=0
                 #update waktu eksekusi terakhir setelah pengunduhan dilakukan
                 update_last_execution_time
             else
