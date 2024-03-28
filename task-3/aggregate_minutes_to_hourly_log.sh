@@ -30,6 +30,28 @@ max_path_size=0
 path_size_mb=0
 total_records=0
 
+#fungsi untuk mengonversi ukuran path ke MB
+function convert_to_mb() {
+    local size_str=$1
+    local size_unit=${size_str: -1} #mendptkan karakter terakhir dari string
+    local size_value=${size_str:0:-1} #mendapatkan nilai dari string tanpa karakter non-numerik
+    local size_mb=0
+
+    case $size_unit in
+        "G")
+            size_mb=$(( size_value * 1024 ))
+            ;;
+        "M")
+            size_mb=$size_value
+            ;;
+        *)
+        echo "Invalid unit: $size_unit"
+            ;;
+    esac
+
+    echo $size_mb
+}
+
 #memproses setiap file log
 for file in $log_files; do
     #membaca data dari file log
@@ -92,51 +114,23 @@ for file in $log_files; do
             max_swap_free=$swap_free
         fi
 
-        # Function to convert human-readable size to megabytes
-        function convert_to_mb() {
-            local size_str=$1
-            local size_unit=${size_str: -1} # Get the last character which represents the unit
-            local size_value=${size_str:0:-1} # Get the value without the unit
-            local size_mb=0
-
-            case $size_unit in
-                "G")
-                    size_mb=$(( size_value * 1024 ))
-                    ;;
-                "M")
-                    size_mb=$size_value
-                    ;;
-                *)
-                    echo "Invalid unit: $size_unit"
-                    ;;
-            esac
-
-            echo $size_mb
-        }
-
-        # Example usage:
-        # size_mb=$(convert_to_mb "125M")
-        # echo $size_mb
-
-        # Assuming $path_size is a string like '125M'
+        #asumsi path_size berisi ukuran path dalam format "xxM" atau "xxG"
         path_size=$(echo "$path_size" | sed 's/[^0-9M]//g')
 
-        # Check if path_size contains numeric value
+        #cek apakah path_size valid
         if [[ $path_size =~ ^[0-9]+[GM]$ ]]; then
             path_size_mb=$(convert_to_mb $path_size)
 
-            # Update min_path_size if necessary
+            #update min_path_size jika diperlukan
             if (( path_size_mb < min_path_size )); then
                 min_path_size=$path_size_mb
             fi
 
-            # Update max_path_size if necessary
+            #update max_path_size jika diperlukan
             if (( path_size_mb > max_path_size )); then
                 max_path_size=$path_size_mb
             fi
         fi
-        total_path_size=$((min_path_size + max_path_size))
-
     done < $file
 done
 
@@ -159,4 +153,5 @@ echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_me
 echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$(whoami)/,${max_path_size}M" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,/home/$(whoami)/,${avg_path_size}M" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 
+#memastikan file log hanya dapat dibaca oleh pemiliknya
 chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
