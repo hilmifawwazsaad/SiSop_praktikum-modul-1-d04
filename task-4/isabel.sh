@@ -133,7 +133,7 @@ main() {
             download_photos 10 "$folder_name"
             echo "Download 10 foto pada tengah malam (00.00)."
         else
-            #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
+            #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika jamnya ganjil
             if (( time_diff == 5 )); then
                 if is_even "$current_hour"; then
                     download_photos 5 "$folder_name"
