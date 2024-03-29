@@ -949,30 +949,42 @@ Isabel sedang LDR dengan pacarnya dan sangat rindu. Isabel ingin menyimpan semua
 
 Sebelumnya, kami menggunakan main function untuk mengeksekusi program 4a dengan bantuan argumen `4a`. Untuk soal selanjutnya juga menggunakan argumen 4b, 4c, dan 4d karena script dijalankan secara bersamaan dalam satu file isabel.sh
 
-*1. Di Main function mendeklarasikan waktu saat ini dan jumlah folder dengan pola increment dalam direktori saat ini*
+*1. Membuat variabel global. Variabel pertama adalah variabel untuk menyimpan absolute path. Varibel selanjutnya diperlukan untuk kebutuhan penamaan folder agar increment secara otomatis*
+```bash
+PATH_ABS="/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4"
+```
+```bash
+#inisialisasi variabel foldercount
+foldercount=0
+#membuat nama folder yang unik
+folder_name="folder_$((++foldercount))"
+while [ -d "$PATH_ABS/$folder_name" ]; do
+    folder_name="folder_$((++folder_count))"
+done
+```
+- `foldercount=0` adalah sebuah variabel yang digunakan untuk menghitung folder yang sudah dibuat
+- `folder_name="folder_$((++foldercount))"` menginisialisasi `folder_name` dengan nama folder yang diawali dengan "folder_" yang diikuti oleh `foldercount` yang nilainya sudah ditambah satu
+- Ekspresi `$((++foldercount))` digunakan untuk menambahkan satu nilai dari nilai `foldercount` sebelumnya
+- `while [ -d "$PATH_ABS/$folder_name" ]; do` perulangan untuk mengecek apakah folder yang dihasilkan dari `folder_name` sudah ada dalam direktori `PATH_ABS`. Jika sudah, maka akan mengupdate `folder_name` dengan nama folder baru dan menambahkan satu ke nilai `foldercount`
+
+*2. Di Main function, kita perlu mendeklarasikan waktu saat ini*
 ```bash
 local current_hour=$(date +"%H")
 local current_minute=$(date +"%M")
-local last_folder_number=$(ls -d folder_* 2>/dev/null | wc -l)
-local folder_counter=$((last_folder_number + 1))
 ```
-Detail :
 - `local` menunjukkan bahwa variabel tersebut hanya dapat diakses di dalam fungsi itu sendiri dan tidak akan terlihat di luar fungsi. Selain itu, juga untuk mencegah terjadinya konflik nama variabel
 - `$(date + "%H)` untuk mendapatkan jam saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel lokal `current_hour`
-- `$(date + "%M")` untuk mendapatkan menit saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel loka `current_minute`
-- `ls -d folder_*` adalah perintah `ls` untuk mencari pola nama `folder_*`. `-d` digunakan untuk menampilkan nama direktori yang cocok dengan pola tersebut
-- `2>/dev/null` adalah perintah untuk mengarahkan output dari standar error (stderr) ke `dev/null` yang merupakan sebuah perangkat yang digunakan untuk membuang data.
-- `|` pipe operator untuk mengarahkan output dari perintah sebelumnya ke input perintah berikutnya
-- `wc -l` (word count) digunakan untuk menghitung jumlah baris
+- `$(date + "%M")` untuk mendapatkan menit saat ini dari perintah `date`. Hasilnya akan disimpan dalam variabel lokal `current_minute`
 
-*2. Membuat fungsi di luar Main Function. Untuk fungsi pertama adalah fungsi untuk mengecek apakah waktu saat ini adalah jam genap*
+*3. Membuat fungsi di luar Main Function. Untuk fungsi pertama adalah fungsi untuk mengecek apakah waktu saat ini adalah jam genap*
 ```bash
 is_even() {
     local time=$1
     ((time % 2 == 0))
 }
 ```
-*3. Fungsi kedua adalah fungsi untuk mengecek apakah waktu saat ini adalah tengah malam (00.00)*
+
+*4. Fungsi kedua adalah fungsi untuk mengecek apakah waktu saat ini adalah tengah malam (00.00)*
 ```bash
 is_midnight() {
     local hour=$1
@@ -980,31 +992,29 @@ is_midnight() {
     [[ $hour -eq 0 && $minute -eq 0 ]]
 }
 ```
-Detail :
-- `[[ $hour -eq 0 && $minute -eq 0 ]]` digunakan untuk mengecek apakah nilai variabel `hour` sama dengan 0 dan nilai variabel `minute` juga sama dengan 0. Jika kondisi benar, maka akan mengembalikan nilai true, Jika kondisi tidak sesuai, akan mengembalikan nilai false,
+- `[[ $hour -eq 0 && $minute -eq 0 ]]` digunakan untuk mengecek apakah nilai variabel `hour` sama dengan 0 dan nilai variabel `minute` juga sama dengan 0. Jika kondisi benar, maka akan mengembalikan nilai true, Jika kondisi tidak sesuai, akan mengembalikan nilai false
 
-*4. Fungsi ketiga adalah fungsi yang digunakan untuk mendownload foto*
+*5. Fungsi ketiga adalah fungsi yang digunakan untuk mendownload foto*
 ```bash
 download_photos() {
     local count=$1
     local folder=$2
 
-    mkdir -p "$folder"
+    mkdir -p "$PATH_ABS/$folder"
     for ((i=1; i<=$count; i++)); do
-        wget --show-progress --progress=bar -q -O "$folder/foto_$i.jpg" "https://phinemo.com/wp-content/uploads/2017/02/hidup-bebas.jpg"
+        wget --show-progress --progress=bar -q -O "$PATH_ABS/$folder/foto_$i.jpg" "https://phinemo.com/wp-content/uploads/2017/02/hidup-bebas.jpg"
         echo "Download foto_$i.jpg ke $folder"
     done
 }
 ```
-Detail :
 - `local count=$1` diinisialisasi dengan nilai dari parameter utama fungsi yang diasumsikan sebagai jumlah foto yang akan diunduh
 - `local folder=$2` diinisalisasi dengan nilai dari parameter kedua fungsi yang merupakan nama folder sebagai tempat menyimpan foto
-- `mkdir -p "$folder" untuk membuat direktori dengan nama yang disimpan dalam variabel `folder`. `-p` digunakan agar tidak ada error ketika direktori sudah ada
-- `wget --show-progress --progress=bar -q -O "$folder/foto_$i.jpg"` memiliki command `wget` digunakan untuk mengunduh foto dari URL yang dicantumkan. Foto yang diunduh akan disimpan dalam format penamaan `foto_$i.jpg` dalam folder yang sudah ditentukan. Penamaan file ini dapat dikontrol karena terdapat `-O` dalam command tersebut
+- `mkdir -p "$PATH_ABS/$folder"` untuk membuat direktori dengan nama yang disimpan dalam variabel `folder`. `-p` digunakan agar tidak ada error ketika direktori sudah ada
+- `wget --show-progress --progress=bar -q -O "$PATH_ABS/$folder/foto_$i.jpg"` memiliki command `wget` digunakan untuk mengunduh foto dari URL yang dicantumkan. Foto yang diunduh akan disimpan dalam format penamaan `foto_$i.jpg` dalam folder yang sudah ditentukan. Penamaan file ini dapat dikontrol karena terdapat `-O` dalam command tersebut
 - `--show-progress --progresss=bar` digunakan untuk menampilkan progres pengunduhan dalam bentuk bar
 - `-q` membuat `wget` berjalan dalam mode diam dan mengurangi pesan yang ditampilkan ke layar
 
-*5. Fungsi keempat adalah fungsi untuk melacak waktu terakhir eksekusi dan menyimpannya dalam variabel dan juga file*
+*6. Fungsi keempat adalah fungsi untuk melacak waktu terakhir eksekusi dan menyimpannya dalam variabel dan juga file*
 ```bash
 #inisialisasi variabel last_execution_time
 last_execution_time=0
@@ -1015,63 +1025,65 @@ update_last_execution_time() {
     echo "Update waktu eksekusi terakhir: $(date)"
 }
 ```
-Detail :
 - `%s` pada `$(date +%s)` digunakan untuk memformat output `date` agar mengembalikan waktu dalam format detik sejak Epoch. Epoch adalah waktu referensi dalam Unix yang biasanya dimulai pada 1 Januari 1970
 - `echo "$last_execution_time" > ~/.last_execution_time` digunakan untuk menyimpan nilai `$last_execution_time` ke dalam file `~/.last_execution_time` dengan bantuan operator >. `~/`menunjukkan bahwa file berada di direktori home 
 
-*6. Selanjutnya kembali ke Main Function untuk melanjutkan program dari no 1. Di sini, kita mulai menggunakan parameter untuk mengeksekusi problem 4a. Parameter yang digunakan adalah `4a`*
+*7. Selanjutnya kembali ke Main Function untuk melanjutkan program dari no 1. Di sini, kita mulai menggunakan parameter untuk mengeksekusi problem 4a. Parameter yang digunakan adalah `4a`*
 ```bash
 if [ "$1" = "4a" ]; then
         echo "Jam sekarang: $current_hour, Menit sekarang: $current_minute"
-        if [[ -f ~/.last_execution_time ]]; then
-            last_execution_time=$(cat ~/.last_execution_time)
-            time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 ))
-        else
-            time_diff=0
+        
+        #cek apa sudah ada file last_execution_time
+        if [[ ! -f ~/.last_execution_time ]]; then
+            echo $(date +%s) > ~/.last_execution_time
         fi
+
+        last_execution_time=$(cat ~/.last_execution_time)
+        time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 )) #menghitung perbedaan waktu dalam jam
+
         #jika jam 00.00, download 10 foto
         if is_midnight "$current_hour" "$current_minute"; then
-            folder_counter=$((folder_counter + 1))
-            download_photos 10 "folder_$folder_counter"
+            download_photos 10 "$folder_name"
             echo "Download 10 foto pada tengah malam (00.00)."
         else
-            #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika tidak
-            if (( time_diff >= 5 )); then
+            #jika perbedaan waktu adalah 5 jam, download 5 foto jika jamnya genap, 3 foto jika jamnya ganjil
+            if (( time_diff == 5 )); then
                 if is_even "$current_hour"; then
-                    download_photos 5 "folder_$folder_counter"
+                    download_photos 5 "$folder_name"
                     echo "Download 5 foto pada jam genap."
                 else
-                    download_photos 3 "folder_$folder_counter"
+                    download_photos 3 "$folder_name"
                     echo "Download 3 foto pada jam ganjil."
                 fi
-
-                #update waktu eksekusi terakhir
+                #menginisialisasi time_diff menjadi 0 setelah pengunduhan dilakukan
+                time_diff=0
+                #update waktu eksekusi terakhir setelah pengunduhan dilakukan
                 update_last_execution_time
             else
                 echo "Tidak ada foto yang di download. Terakhir dijalankan $time_diff jam yang lalu."
             fi
         fi
 ```
-Detail : 
-- `-f` digunakan untuk mengecek apakah file `~/.last_execution_time` ada atau tidak
+- `-f` pada `if [[ ! -f ~/.last_execution_time ]]` digunakan untuk mengecek apakah file `~/.last_execution_time` ada atau tidak
 - `last_execution_time=$(cat ~/.last_execution_time)` untuk membaca nilai waktu terakhir yang disimpan di dalamnya dan menetapkannya ke dalam variabel `last_exexution_time` dengan command `cat`
 - `time_diff=$(( ( $(date +%s) - last_execution_time) / 3600 ))` adalah perhitungan untuk menghitung selisih waktu antara waktu sekarang dan waktu eksekusi terakhir dalam jam
-- `folder_counter=$((folder_counter + 1))` menunjukkan bahwa nilai folder_counter akan diincrement agar sesuai dengan folder baru yang akan dibuat
-- `download_photos 10 "folder_$folder_counter"` pemanggilan fungsi `download_photos` untuk mengunduh 10 foto. Fungsi ini akan membuat folder baru dengan nama `folder_$folder_counter` (sesuai dengan nilai folder_counter yang baru diincrement) dan mengunduh 10 foto ke dalamnya
-- Poin detail 4-5 akan berulang untuk kondisi setelah 5 jam sejak eksekusi terakhir. Untuk jam genap akan mendowload 5 foto, sedangkan jam ganjil mendownload 3 foto
+- `download_photos 10 "folder_$folder_counter"` pemanggilan fungsi `download_photos` untuk mengunduh 10 foto. Fungsi ini akan membuat folder baru dengan nama `folder_$folder_counter` (sesuai dengan nilai folder_counter yang baru diincrement) dan mengunduh 10 foto ke dalamnya. Kasus ini berlaku untuk pukul 00.00
+- Poin 4 akan berulang untuk kondisi setelah 5 jam sejak eksekusi terakhir. Untuk jam genap akan mendowload 5 foto, sedangkan jam ganjil mendownload 3 foto
+- `time_diff=0` digunakan untuk menginisialisasi bahwa variabel `time_diff` akan menjadi 0 setelah proses pengunduhan. Hal ini digunakan agar setiap 5 jam sekali mendownload gambar
 - Pemanggilan fungsi `update_last_execution_time` untuk memperbarui waktu eksekusi terakhir
 
-*7. **Cronjob**. Disini kami menggunakan cron untuk menjalankan script `isabel.sh 4a` setiap satu jam sekali. Hal ini dikarenakan terdapat 2 kondisi yang harus terjadi. Kondisi pertama adalah mendownload foto setiap 5 jam sekali sesuai dengan jam saat ini (jam genap download 5 foto, jam ganjil download 3 foto). Kondisi kedua adalah setiap pukul 00.00 pasti mendownload 10 foto terlepas dari kondisi pertama*
+*8. **Cronjob**. Disini kami menggunakan cron untuk menjalankan script `isabel.sh "4a"` setiap satu jam sekali dan setiap pukul 00.00. Hal ini dikarenakan terdapat 2 kondisi yang harus terjadi. Kondisi pertama adalah mendownload foto setiap 5 jam sekali sesuai dengan jam saat ini (jam genap download 5 foto, jam ganjil download 3 foto). Kondisi kedua adalah setiap pukul 00.00 pasti mendownload 10 foto terlepas dari kondisi pertama*
 ```bash
-@hourly /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh 4a
+@hourly /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4a"
+0 0 * * * /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4a"
 ```
-Detail :
 - `@hourly` menunjukkan bahwa argumen `4a` pada file `isabel.sh` dijalankan setiap satu jam sekali
+- `0 0 * * *` menunjukkan bahwa argumen `4a` pada file `isabel.sh` dijalankan setiap pukul 00.00
 - `/bin/bash` digunakan untuk menunjukkan bahwa perintah dijalankan dengan menggunakan shell bash
-- `/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh 4a` menunjukkan path dari file `isabel.sh`.
+- `/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4a"` menunjukkan path dari file `isabel.sh`.
 - `4a` adalah argumen yang dijalankan dalam file `isabel.sh`
 
-*8. **Dokumentasi***
+*9. **Dokumentasi***
 - Execute `isabel.sh 4a`
 ![alt text](image.png)
 - Folder yang terbentuk
@@ -1085,27 +1097,121 @@ Isabel harus melakukan zip setiap 1 jam dengan nama zip ayang_NOMOR.ZIP dengan N
 
 **Jawab**
 
-Untuk problem 4b ini prosesnya mirip dengan 4a. Jadi, kita menggunakan parameter `4b` di Main Function untuk mengakses fungsi untuk zip folder.
+Untuk problem 4b ini prosesnya mirip dengan 4a. Jadi, kita menggunakan argumen `4b` di Main Function untuk mengakses fungsi untuk zip folder. 
 
-1. Percabangan di Main Function untuk parameter `4b`
+*1. Percabangan di Main Function untuk argumen `4b`*
 ```bash
 elif [ "$1" = "4b" ]; then
-        jumlah_folder=$(ls -d folder_* | wc -l) #mendapatkan jumlah folder dalam direktori
-        for ((i=1; i<=$jumlah_folder; i++)); do
-            folder="folder_$i"
-            if [[ -d "$folder" ]]; then
-                folder_zip "$i"
-            fi
-        done
+        folder_zip
 ```
-Detail :
-- 
 
+*2. Membuat fungsi untuk melakukan zip pada folder*
+```bash
+folder_zip() {
+    # Loop melalui setiap folder di dalam PATH_ABS yang belum di-zip
+    for folder in "$PATH_ABS"/folder_*; do
+        # Pastikan itu adalah sebuah direktori dan bukan file zip
+        if [ -d "$folder" ] && [ ! -e "$folder.zip" ]; then
+            # Buat nama file zip baru berdasarkan nomor folder
+            zip_name="$PATH_ABS/ayang_${folder##*_}.zip"
+
+            # Zip folder tanpa memeriksa apakah kosong atau tidak
+            zip -r "$zip_name" "$folder"
+        fi
+    done
+}
+```
+- `for folder in "$PATH_ABS"/folder_*; do` adalah loop untuk setiap folder dengan nama "folder_" di dalam direktori `$PATH_ABS`
+- `if [ -d "$folder" ] && [ ! -e "$folder.zip" ]; then` digunakan untuk memeriksa apakah iterasi saat ini adalah sebuah direktori dan apakah belum ada file zip dengan nama yang sama dengan nama folder
+- `zip_name="$PATH_ABS/ayang_${folder##*_}.zip"` untuk inisialisasi `zip_name` dengan nama file zip baru
+- `${folder##*_}` berguna untuk mengambil bagian akhir dari nama folder setelah tanda (_). Dalam kasus ini adalah angka dari urutan folder yang terbentuk
+- `zip -r "$zip_name" "$folder"` adalah command untuk mengopresi isi folder ke dalam file zip yang nama foldernya sudah ditentkan sebelumnya. `-r` digunakan untuk mengopresi secara rekursif yang nantinya semua file di dalam folder akan dimasukkan ke dalam file zip
+
+*3. **Cronjob**. Folder akan di zip setiap 10 jam sekali*
+```bash
+0 */10 * * * /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4b"
+```
+- `0 */10 * * *` menunjukkan bahwa argumen `4b` pada file `isabel.sh` dijalankan setiap 10 jam sekali
+- `/bin/bash` digunakan untuk menunjukkan bahwa perintah dijalankan dengan menggunakan shell bash
+- `/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4b"` menunjukkan path dari file `isabel.sh`.
+- `4b` adalah argumen yang dijalankan dalam file `isabel.sh`
+
+*4. **Dokumentasi***
+- Execute `isabel.sh 4b`
+......
+- Zip yang terbentuk
+.......
 
 ### Problem 4c
 Ternyata laptop Isabel masih penuh, bantulah dia untuk delete semua folder dan zip setiap hari pada pukul 02.00!
 
 **Jawab**
+
+Seperti yang dijelaskan, problem 4c diselesaikan melalui argumen `4c`. Kita menggunakan argumen `4c` di Main Function untuk mengakses fungsi untuk menghapus folder dan zip.
+
+*1. Percabangan di Main Function untuk argumen `4c`*
+```bash
+ elif [ "$1" = "4c" ]; then
+        delete_folders_and_zips "$PATH_ABS" #letak directory peyimpanan folder dan zip
+```
+
+*2. Membuat fungsi untuk menghapus semua folder dan file zip*
+```bash
+delete_folders_and_zips() {
+    local directory="$1"
+
+    #inisialisasi variabel untuk mengecek apakah ada folder di direktori
+    local folder_ditemukan=false
+    for folder in "$directory"/folder_*; do
+        if [ -d "$folder" ]; then
+            folder_ditemukan=true
+            rm -rf "$folder" #hapus folder
+            echo "Folder $folder telah dihapus"
+        fi
+    done
+
+    #cek jika tidak ada folder di direktori
+    if ! $folder_ditemukan; then
+        echo "Tidak ada folder di direktori $directory"
+    fi
+
+    #inisialisasi variabel untuk mengecek apakah ada zip di direktori
+    local zip_ditemukan=false
+    for zip_file in "$directory"/ayang_*.zip; do
+        if [ -f "$zip_file" ]; then
+            zip_ditemukan=true
+            rm -f "$zip_file" #hapus file zip
+            echo "File zip $zip_file telah dihapus"
+        fi
+    done
+
+    #cek jika tidak ada zip di direktori
+    if ! $zip_ditemukan; then
+        echo "Tidak ada zip di direktori $directory"
+    fi
+}
+```
+- `local directory="$1"` diinisialisasi dari nilai pertama yang diberikan sebagai argumen saat fungsi dipanggil. Argumen ini adalah `"$PATH_ABS"` yang merupakan direktori yang semua folder dan file zip akan dihapus
+- `for folder in "$directory"/folder_*; do` adalah loop untuk setiap folder yang dimulai dengan nama "folder_" di dalam direktori yang sudah ditentukan
+- `if [ -d "$folder" ]; then` memeriksa apakah iterasi saat ini adalah sebuah direktori
+- `rm -rf "$folder"` digunakan untuk menghapus folder secara rekursif (termasuk subfolder dan file di dalamnya)
+- Proses yang sama (poin 2-4) berlaku untuk menghapus file zip
+- `-f` pada `rm -f "$zip_file"` digunakan untuk menghapus tanpa konfirmasi
+
+*3. **Cronjob**. Folder dan file zip akan dihapus setiap hari pada pukul 02.00*
+```bash
+0 2 * * * /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4c"
+```
+- `0 2 * * *` menunjukkan bahwa argumen `4c` pada file `isabel.sh` dijalankan setiap hari pada pukul 02.00
+- `/bin/bash` digunakan untuk menunjukkan bahwa perintah dijalankan dengan menggunakan shell bash
+- `/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4c"` menunjukkan path dari file `isabel.sh`.
+- `4c` adalah argumen yang dijalankan dalam file `isabel.sh`
+
+*4. **Dokumentasi***
+- Execute 'isabel.sh 4c`
+.....
+- Folder dan file zip terhapus
+.....
 
 ### Problem 4d
 * Untuk mengisi laptopnya kembali, Isabel ingin mendownload gambar Levi dan Eren secara bergantian setiap harinya
@@ -1113,6 +1219,71 @@ Ternyata laptop Isabel masih penuh, bantulah dia untuk delete semua folder dan z
 * Jika Eren, maka nama file nya menjadi eren_YYYYMMDD (Dengan YYYYMMDD adalah tahun, bulan, dan tanggal gambar tersebut di download)
 
 **Jawab**
+
+*1. Percabangan di Main Function untuk argumen `4d`*
+```bash
+elif [ "$1" = "4d" ]; then
+        if [[ ! -f ~/.last_downloaded ]]; then
+            touch ~/.last_downloaded
+            echo "File .last_downloaded telah dibuat."
+        fi
+
+        if [[ -f ~/.last_downloaded ]]; then
+            last_downloaded=$(cat ~/.last_downloaded)
+        fi
+
+        if [[ "$last_downloaded" == "levi" ]]; then
+            download_foto "eren"
+            echo "eren" > ~/.last_downloaded
+        else
+            download_foto "levi"
+            echo "levi" > ~/.last_downloaded
+        fi
+    fi
+```
+- `if [[ ! -f ~/.last_downloaded ]]; then` untuk mengecek apakah file `~/.last_downloaded` tidak ada. Jika tidak ada, maka file akan di buat di `home` dengan menggunakan perintah `touch`
+- ` if [[ -f ~/.last_downloaded ]]; then` untuk mengecek apakah file `~/.last_downloaded` ada. Jika ada, maka isi dari file tersebut akan dibaca dan disimpan dalam variabel `last_downloaded`
+- `download_foto "eren"` dan `download_foto "levi"` adalah pemanggilan fungsi untuk mendownload foto sesuai argumen
+
+*2. Membuat fungsi untuk mendownload foto levi dan eren secara bergantian*
+```bash
+download_foto() {
+    local character=$1
+    local tanggal=$(date +"%Y%m%d")
+
+    if [[ "$character" == "levi" ]]; then
+        wget -O "$PATH_ABS/levi_$tanggal.jpg" "https://i.pinimg.com/564x/0d/a7/a1/0da7a17b89ea6ee5b62a7eee2f7af31b.jpg"
+        echo "Download foto Levi berhasil"
+    elif [[ "$character" == "eren" ]]; then
+        wget -O "$PATH_ABS/eren_$tanggal.jpg" "https://i.pinimg.com/564x/66/96/dc/6696dc04a235984e905a88c2607c7ffe.jpg"
+        echo "Download foto Eren berhasil"
+    else
+        echo "Karakter tidak valid, silahkan tentukan 'levi' atau 'eren'."
+    fi
+}
+```
+- `local character=$1` mendefinisikan variabel local `character` yang nilainya diinisialisasi dengan nilai pertama yang diberikan sebagai argumen saat fungsi dipanggil
+- `local tanggal=$(date +"%Y%m%d")` menginisialisasi variabel lokal `tanggal` yang akan menyimpan tanggal saat ini dalam format tahun, bulan, dan tanggal (YYYYMMDD). Ini akan digunakan dalam nama file untuk menyimpan foto
+- `wget -O "$PATH_ABS/levi_$tanggal.jpg"` Jika karakter yang diminta adalah `levi`, maka command `wget` akan digunakan untuk mengunduh foto Levi dari URL yang diberikan. Foto akan disimpan dengan nama yang berisi tanggal dalam format yang telah disebutkan sebelumnya.
+- Poin 3 berlaku juga jika karakter yang diminta adalah `eren`
+
+*3. **Cronjob**. Mendownload foto levi dan foto eren secara bergantian tiap harinya*
+```bash
+@daily /bin/bash /home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4d"
+```
+
+- `@daily` menunjukkan bahwa argumen `4d` pada file `isabel.sh` dijalankan setiap hari
+- `/bin/bash` digunakan untuk menunjukkan bahwa perintah dijalankan dengan menggunakan shell bash
+- `/home/hilmifawwaz/sisop/praktikum-modul-1-d04/task-4/isabel.sh "4d"` menunjukkan path dari file `isabel.sh`.
+- `4d` adalah argumen yang dijalankan dalam file `isabel.sh`
+
+*4. **Dokumentasi***
+- Execute 'isabel.sh 4d`
+.....
+- Foto levi terdownload
+.....
+- Foto eren terdownload (bergantian)
+.....
 
 ### Kendala
 
