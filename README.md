@@ -930,12 +930,262 @@ Kemudian, buat satu script untuk membuat aggregasi file log ke satuan jam. Scrip
 
 **Jawab**
 
+*1. Membuat dan mendapatkan waktu saat ini yang nanti digunakan untuk penamaan file*
+```bash
+current_hour=$(date +'%Y%m%d%H')
+```
+- Inisialisasi variabel `current_hour` dengan tanggal dan jam saat ini menggunakan format "YYYYMMDDHH"
+
+*2. Mendapatkan list file log yang telah dihasilkan dari script minute_log,sh*
+```bash
+log_files=$(ls /home/$(whoami)/metrics/metrics_${current_hour}*.log)
+```
+- Inisialisasi variabel `log_files` untuk mendapatkan daftar file yang sesuai dengan pola nama file yang spesifik, yaitu "metrics_"
+- Penggunaan `ls` dimungkinkan untuk menemukan file-file yang sesuai dengan pola yang telah ditentukan
+
+*3. Inisialisasi nilai minimum dan maximum*
+```bash
+min_mem_total=999999
+max_mem_total=0
+min_mem_used=999999
+max_mem_used=0
+min_mem_free=999999
+max_mem_free=0
+min_mem_shared=999999
+max_mem_shared=0
+min_mem_buff=999999
+max_mem_buff=0
+min_mem_available=999999
+max_mem_available=0
+min_swap_total=999999
+max_swap_total=0
+min_swap_used=999999
+max_swap_used=0
+min_swap_free=999999
+max_swap_free=0
+min_path_size=999999
+max_path_size=0
+path_size_mb=0
+total_records=0
+```
+
+*4. Membuat fungsi untuk mengatasi `path_size` karena adanya karakter non-numerik*
+```bash
+function convert_to_mb() {
+    local size_str=$1
+    local size_unit=${size_str: -1} #mendptkan karakter terakhir dari string
+    local size_value=${size_str:0:-1} #mendapatkan nilai dari string tanpa karakter non-numerik
+    local size_mb=0
+
+    case $size_unit in
+        "G")
+            size_mb=$(( size_value * 1024 ))
+            ;;
+        "M")
+            size_mb=$size_value
+            ;;
+        *)
+        echo "Invalid unit: $size_unit"
+            ;;
+    esac
+
+    echo $size_mb
+}
+```
+- `local size_str=$1` digunakan untuk mendapatkan nilai dari `path_size` yang berisi nilai numerik dan non-numerik
+- `local size_unit=${size_str: -1}` digunakan untuk mendapatkan karakter terakhir (dalam kasus ini M) dari string `size_str`
+- `local size_value=${size_str:0:-1}` digunakan untuk mendapatkan semua nilai numerik dari string `size_str`, kecuali karakter terakhir
+- Inisialisasi `local size_mb` dengan nilai awal 0
+- `case $size_unit in` adalah kontrol case untuk mengevaluasi variabel `size_unit`. Ini nanti akan menyesuaikan dari nilai variabel `size_unit`, yaitu "G" (Gigabyte), "M"(megabyte), dan nilai yang tidak valid
+- ` "G") size_mb=$(( size_value * 1024 ))` untuk case jika nilanya adalah "G", maka akan di konversi menjadi megabyte dengan mengalikan 1024 (1G = 1024M)
+- `"M") size_mb=$size_value` jika nilainya adalah "M", maka nilai langsung digunakan tanpa dikonversi
+- `echo $size_mb` digunakan untuk mencetak dan mengembalikan nilai sebagai output dari fungsi
+
+*5. Loop untuk memproses setiap file log dan memperbarui nilai minimum dan maximum dari berbagai metrics*
+```bash
+for file in $log_files; do
+    #membaca data dari file log
+    ((total_records++))
+    while IFS=, read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do
+        
+        #memperbarui nilai minimum dan maksimum
+        if [[ $mem_total -lt $min_mem_total ]]; then
+            min_mem_total=$mem_total
+        fi
+        if [[ $mem_total -gt $max_mem_total ]]; then
+            max_mem_total=$mem_total
+        fi
+        if [[ $mem_used -lt $min_mem_used ]]; then
+            min_mem_used=$mem_used
+        fi
+        if [[ $mem_used -gt $max_mem_used ]]; then
+            max_mem_used=$mem_used
+        fi
+        if [[ $mem_free -lt $min_mem_free ]]; then
+            min_mem_free=$mem_free
+        fi
+        if [[ $mem_free -gt $max_mem_free ]]; then
+            max_mem_free=$mem_free
+        fi
+        if [[ $mem_shared -lt $min_mem_shared ]]; then
+            min_mem_shared=$mem_shared
+        fi
+        if [[ $mem_shared -gt $max_mem_shared ]]; then
+            max_mem_shared=$mem_shared
+        fi
+        if [[ $mem_buff -lt $min_mem_buff ]]; then
+            min_mem_buff=$mem_buff
+        fi
+        if [[ $mem_buff -gt $max_mem_buff ]]; then
+            max_mem_buff=$mem_buff
+        fi
+        if [[ $mem_available -lt $min_mem_available ]]; then
+            min_mem_available=$mem_available
+        fi
+        if [[ $mem_available -gt $max_mem_available ]]; then
+            max_mem_available=$mem_available
+        fi
+        if [[ $swap_total -lt $min_swap_total ]]; then
+            min_swap_total=$swap_total
+        fi
+        if [[ $swap_total -gt $max_swap_total ]]; then
+            max_swap_total=$swap_total
+        fi
+        if [[ $swap_used -lt $min_swap_used ]]; then
+            min_swap_used=$swap_used
+        fi
+        if [[ $swap_used -gt $max_swap_used ]]; then
+            max_swap_used=$swap_used
+        fi
+        if [[ $swap_free -lt $min_swap_free ]]; then
+            min_swap_free=$swap_free
+        fi
+        if [[ $swap_free -gt $max_swap_free ]]; then
+            max_swap_free=$swap_free
+        fi
+
+        #asumsi path_size berisi ukuran path dalam format "xxM" atau "xxG"
+        path_size=$(echo "$path_size" | sed 's/[^0-9M]//g')
+
+        #cek apakah path_size valid
+        if [[ $path_size =~ ^[0-9]+[GM]$ ]]; then
+            path_size_mb=$(convert_to_mb $path_size)
+
+            #update min_path_size jika diperlukan
+            if (( path_size_mb < min_path_size )); then
+                min_path_size=$path_size_mb
+            fi
+
+            #update max_path_size jika diperlukan
+            if (( path_size_mb > max_path_size )); then
+                max_path_size=$path_size_mb
+            fi
+        fi
+    done < $file
+done
+```
+- `((total_records++))` digunakan untuk menjumlahkan total file log yang sudah diproses
+- ` while IFS=, read -r mem_total mem_used mem_free mem_shared mem_buff mem_available swap_total swap_used swap_free path path_size; do` adalah perulangan untuk membaca setiap baris dari file log berdasarkan pemisah/delimiter (,). Nantinya, semua nilai yang didapatkan akan disimpan dalam variabel yang sesuai
+- `path_size=$(echo "$path_size" | sed 's/[^0-9M]//g')` digunakan untuk menghapus semua karakter non-numerik (kecuali "M") dari nilai variabel `path_size`. Hasilnya akan berupa numerik dan karakter "M"
+- `if [[ $path_size =~ ^[0-9]+[GM]$ ]]; then` digunakan untuk mengecek apakah nilai `path_size` sudah sesuai dengan format yang diharapkan (angka diikuti oleh "G" atau "M")
+- `done < $file` menunjukkan bahwa loop `while` menggunakan isi dari sebuah file sebagai inputnya. Hal ini memungkinkan program untuk membaca dan memproses baris-baris file log satu per satu dalam loop 
+
+*4. Setelah mendapatkan nilai min dan max, dilanjutkan untuk menghitung nilai rata-rata berdasarkan nilai min dan max tersebut*
+```bash
+avg_mem_total=$(( (min_mem_total + max_mem_total) / 2 ))
+avg_mem_used=$(( (min_mem_used + max_mem_used) / 2 ))
+avg_mem_free=$(( (min_mem_free + max_mem_free) / 2 ))
+avg_mem_shared=$(( (min_mem_shared + max_mem_shared) / 2 ))
+avg_mem_buff=$(( (min_mem_buff + max_mem_buff) / 2 ))
+avg_mem_available=$(( (min_mem_available + max_mem_available) / 2 ))
+avg_swap_total=$(( (min_swap_total + max_swap_total) / 2 ))
+avg_swap_used=$(( (min_swap_used + max_swap_used) / 2 ))
+avg_swap_free=$(( (min_swap_free + max_swap_free) / 2 ))
+avg_path_size=$(( (min_path_size + max_path_size) / 2 ))
+```
+
+*5. Setelah mendapatkan semua nilai (min, max, dan average), dilakukan penyimpanan nilai ke dalam sebuah file log agregat*
+```bash
+echo $total_records
+echo "type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" > /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+echo "minimum,$min_mem_total,$min_mem_used,$min_mem_free,$min_mem_shared,$min_mem_buff,$min_mem_available,$min_swap_total,$min_swap_used,$min_swap_free,/home/$(whoami)/,${min_path_size}M" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+echo "maximum,$max_mem_total,$max_mem_used,$max_mem_free,$max_mem_shared,$max_mem_buff,$max_mem_available,$max_swap_total,$max_swap_used,$max_swap_free,/home/$(whoami)/,${max_path_size}M" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+echo "average,$avg_mem_total,$avg_mem_used,$avg_mem_free,$avg_mem_shared,$avg_mem_buff,$avg_mem_available,$avg_swap_total,$avg_swap_used,$avg_swap_free,/home/$(whoami)/,${avg_path_size}M" >> /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+
+```
+
+*6. Terakhir adalah memastikan bahwa file log hanya dapat dibaca oleh pemiliknya saja. Hal ini sudah dituliskan dalam poin soal 3e*
+```bash
+chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
+```
+
+*7. **Cronjob**. Berdasarkan soal, script ini dijalankan setiap satu jam sekali*
+```bash
+@hourly /usr/operating-system/praktikum-modul-1-d04/task-3/aggregate_minutes_to_hourly_log.sh
+```
+- `@hourly` menunjukkan bahwa file `aggregate_minutes_to_hourly_log.sh` dijalankan setiap satu jam sekali
+- `/usr/operating-system/praktikum-modul-1-d04/task-3/aggregate_minutes_to_hourly_log.sh` menunjukkan path dari file `aggregate_minutes_to_hourly_log.sh`.
+
+*8. **Dokumentasi***
+- Execute `aggregate_minutes_to_hourly_log.sh`
+.....
+- Output
+.....
+- Isi file `metrics_agg_${current_hour}.log`
+.....
+
 ### Problem 3d
 Selanjutnya agar lebih menghemat penyimpan, buatlah script backup_metrics.sh. Dimana script ini akan menyimpan semua log metrics aggregasi mulai dari pukul 00:00 sampai 23:59 didalam 1 file .gz menggunakan gunzip. Contoh nama file hasil zip backup_metrics_{date_YmdH}.gz
 
 **Jawab**
+*1. Membuat dan mendapatkan tanggal saat ini dengan format YYYYMMDD*
+```bash
+current_date=$(date +'%Y%m%d')
+```
+
+*2. Mencari dan mendapatkan semua file log aggregat yang dibuat pada tanggal yang sama dengan tanggal saat ini*
+```bash
+log_files=$(ls /home/$(whoami)/metrics/metrics_agg_${current_date}*.log)
+```
+- Penggunaan `ls` dimungkinkan untuk menemukan file-file yang sesuai dengan pola yang telah ditentukan
+
+*3. Setelah mendapatkan semua file log aggregat, dilakukan penggabungan menjadi satu file*
+```bash
+cat $log_files > /home/$(whoami)/metrics/metrics_agg_${current_date}.log
+```
+- `cat` digunakan untuk menggabungkan isi dari semua file ke dalam satu aliran (stream), dan kemudian aliran tersebut diarahkan ke sebuah file baru dengan menggunakan operator `>`
+- `/home/$(whoami)/metrics/metrics_agg_${current_date}.log` adalah path dari file tersebut
+
+*4. Mengopress file log yang telah digabungkan dengan format .gz*
+```bash
+gzip /home/$(whoami)/metrics/metrics_agg_${current_date}.log
+```
+
+*5. Memindahkan sekaligus mengubah nama file log*
+```bash
+mv /home/$(whoami)/metrics/metrics_agg_${current_date}.log.gz /home/$(whoami)/metrics/backup_metrics_${current_date}.gz
+```
+
+*6. Menghapus semua file log aggregat asli yang telah digabungkan dan dikompresi untuk menghemat penyimpanan*
+```bash
+rm $log_files
+```
+
+*7. **Cronjob**. Berdasarkan soal, script dijalankan pada pukul 23.59 (semua file yang dibuat sejak 00.00 - 23.59 akan di zip menjadi satu)*
+```bash
+59 23 * * * /usr/operating-system/praktikum-modul-1-d04/task-3/bakcup_metrics.sh
+```
+- `59 23 * * *` menunjukkan bahwa file `bakcup_metrics.sh` dijalankan setiap satu jam sekali
+- `/usr/operating-system/praktikum-modul-1-d04/task-3/bakcup_metrics.sh` menunjukkan path dari file `bakcup_metrics.sh`.
+
+*8. **Dokumentasi***
+- Execute `bakcup_metrics.sh`
+.....
+- Output
+.....
 
 ### Kendala
+Kendala untuk soal no 3 terdapat pada bagian soal poin c (aggregat). Kendalanya adalah untuk mencari nilai min dan max masih sangat manual, sehingga rawan salah karena harus teliti (sempat terjadi semua valuenya 0). Alhamdulillah-nya, dapat insight ketika demo bahwa ada cara yang lebih efisien dengan menggunakan `awk` untuk melakukan sorting data.
 
 ## 4️⃣ Soal 4
 Isabel sedang LDR dengan pacarnya dan sangat rindu. Isabel ingin menyimpan semua foto-foto yang dikirim oleh pacarnya. Bantulah Isabel menyimpan gambar "Mingyu Seventeen”.
@@ -1286,6 +1536,7 @@ download_foto() {
 .....
 
 ### Kendala
+Kendala untuk soal nomor 4 lebih mengarah pada bagian cron jobs. Jadi, sebelum revisi dilakukan cron yang dibuat tidak bisa menghasilkan output dan jika ingin melihat output harus debugging manual. Disisi lain, ternyata penggunaan argumen pada cron harus diberi tanda double quote ("") agar cron bisa membacanya.
 
 
 
