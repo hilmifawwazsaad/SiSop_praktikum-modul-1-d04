@@ -12,3 +12,7 @@ LOGIN: SUCCESS NUR is logged in
 03/27/2024 21:37:53 LOGIN: SUCCESS NUR is logged in
 03/27/2024 21:39:16 LOGIN: ERROR Failed login attempt on 
 03/27/2024 21:42:53 REGISTER: ERROR Fisika already existed
+03/30/2024 14:12:35 LOGIN: SUCCESS NUR is logged in
+03/30/2024 14:14:30 LOGIN: ERROR Failed login attempt on 
+03/30/2024 14:23:40 REGISTER: ERROR Ahmad_Sodik_Zainud, already existed
+03/30/2024 14:25:55 REGISTER: SUCCESS Ahmad_Aja, is registered. Proposal 500, is added

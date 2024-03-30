@@ -4,9 +4,6 @@
 echo "Enter data, separated by commas (No.,Nama_Pengusul,Departemen,Fakultas,Judul,Pendamping,Skema):"
 read -a input_data
 
-# Check if the CSV file exists, if not, create it
-touch resources/data-pkm.csv
-
 # Check if user already exists in the CSV file
 user_data=$(echo "${input_text}\n" | sed 's/ //g; s/,/ /g')
   # Convert input data to space-separated string

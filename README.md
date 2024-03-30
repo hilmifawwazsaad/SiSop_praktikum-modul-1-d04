@@ -362,7 +362,7 @@ Yuan sedang gabut dan lagi makan toge. Setelah kenyang, dia ingin menambah suatu
 * Memasukkan username. Username didapatkan dari kata pertama pada kolom nama_pengusul
 
 **Jawab**
-*
+``` bash
 #!/bin/bash
 
 pkm_csv_file="resources/data-pkm.csv"
@@ -395,90 +395,183 @@ login_attempt=$(awk -F, -v name="$name" -v password="$password" 'BEGIN { found=0
 
 # Write awk output and current date/time to the output file
 echo "$time_input" "$login_attempt" >> task-2/output/log.txt
+```
+*1.  variabel pkm_csv_file yang berisi path ke file CSV*
+```bash
+pkm_csv_file="resources/data-pkm.csv"
+```
+Detail :
+- `pkm_csv_file="resources/data-pkm.csv"` 
+inisiasi variabel pkm_csv_file yang didapat dari resources/data-pkm.csv
 
-* Username : NUR
+*2.  Menerima input nama pertama dan pasword*
 
-* Memasukkan password. Password didapatkan dari fakultas+nipd_dosen_pendamping
+```bash
+echo "Please enter a first name: "
+read name
 
-**Jawab**
+echo "Please enter a password: "
+read password
+```
+Detail :
+- Menerima input dengan format username adalah nama pertama dan password adalah gabungan dari nama fakultas dan NIDN dosen
+
+*3.  Mendapatkan waktu saat ini*
+
+```bash
+time_input=$(date '+%m/%d/%Y %H:%M:%S')
+```
+Detail :
+- Mendapatkan waktu saat ini dengan format bulan hari tahun jam menit detik sebagai detil bahwa data diupdate pada waktu tersebut
+
+*4.  Mendapatkan waktu saat ini*
+
+```bash
+login_attempt=$(awk -F, -v name="$name" -v password="$password" 'BEGIN { found=0 } {
+    split($2, a, "_");
+    split($4, b, " "); split($6, c, " "); gsub(/[()]/, "", c[length(c)]);
+    combined_string = b[1] c[length(c)];
+    if (a[1] == name && combined_string == password) {
+        print "LOGIN: SUCCESS " name " is logged in";
+        found=1;
+        exit; # Exit from awk after finding the first match
+    }
+} END {
+    if (found == 0) {
+        print "LOGIN: ERROR Failed login attempt on " nama;
+    }
+}' "$pkm_csv_file")
+```
+Detail :
+- Menggunakan awk untuk memeriksa apakah nama dan kata sandi yang dimasukkan oleh pengguna cocok dengan entri yang ada dalam file CSV.
+- F, mengatur pemisah untuk file CSV sebagai koma (,).
+- v name="$name" -v password="$password" digunakan untuk memasukkan variabel shell (name dan password) ke dalam skrip awk.
+BEGIN { found=0 } inisialisasi variabel found sebagai 0.
+- `split($2, a, "_");` untuk mendapatkan nama pertama sebagai username
+- `split($4, b, " "); split($6, c, " "); gsub(/[()]/, "", c[length(c)]);
+    combined_string = b[1] c[length(c)];` untuk mendapatkan nilai fakultas dan NIDN dosen dan digabung
+- `if (a[1] == name && combined_string == password) {
+        print "LOGIN: SUCCESS " name " is logged in";
+        found=1;
+        exit; # Exit from awk after finding the first match
+    }
+} END`
+        logic untuk mendapatkan apakah kombinasi antara username dan password sudah tepat
+- `if (found == 0) {
+        print "LOGIN: ERROR Failed login attempt on " nama;
+    }`
+    jika tidak maka akan error
+- Baris kode di dalam blok AWK melakukan split pada entri CSV untuk mendapatkan bagian-bagian yang relevan, kemudian memeriksa apakah nama dan kata sandi cocok dengan input pengguna.
+Jika cocok, pesan sukses login akan dicetak dan variabel found akan diubah menjadi 1, kemudian AWK akan diakhiri (exit).
+Pada bagian END, jika tidak ditemukan kecocokan, pesan error akan dicetak.
+
+*6.  Menambahkan output pada log.txt*
+
+```bash
+echo "$time_input" "$login_attempt" >> task-2/output/log.txt
+```
+Detail :
+- Menambahkan waktu saat ini dan hasil percobaan login ke file log.
+
+## Uji Coba Case
+### input
+```bash
+Please enter a first name: #success case
+NUR
+Please enter a password: 
 FTIRS0029119304
+Please enter a first name: #fail case
+NUR
+Please enter a password: 
+he
+```
 
-* Setiap percobaan login akan tercatat pada log.txt dengan format YY/MM/DD hh:mm:ss MESSAGE
-
-**Jawab**
-Nama dan password ditemukan: NUR FTIRS0029119304
-Nama atau password gada: NUR FTIRS002911930
-03/22/2024 01:51:42
-Nama dan password ditemukan: NUR FTIRS0029119304
-03/22/2024 01:54:53 LOGIN: SUCCESS NUR is logged in
-LOGIN: SUCCESS NUR is logged in
-03/22/2024 02:05:53 LOGIN: SUCCESS NUR is logged in
-03/22/2024 02:06:27 LOGIN: SUCCESS NUR is logged in
+### output
+```bash
+03/30/2024 14:12:35 LOGIN: SUCCESS NUR is logged in #if success login
+03/30/2024 14:14:30 LOGIN: ERROR Failed login attempt on  #if failed
+```
 
 
 ### Problem 2b
 * Yuan juga ingin membuat file bash register bernama yu_register.sh untuk handle peserta baru yang ingin upload proposal. Data baru ini akan langsung disimpan dalam file .csv tersebut.
 
 **Jawab**
-
+```bash
 #!/bin/bash
 
 # Ask for input
 echo "Enter data, separated by commas (No.,Nama_Pengusul,Departemen,Fakultas,Judul,Pendamping,Skema):"
 read -a input_data
 
-# Check if the CSV file exists, if not, create it
-touch resources/data-pkm.csv
-
 # Check if user already exists in the CSV file
 user_data=$(echo "${input_text}\n" | sed 's/ //g; s/,/ /g')
   # Convert input data to space-separated string
 if grep -qi ${input_data[1]} resources/data-pkm.csv; then
-    echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: ERROR ${input_data[1]} already existed" >> task-2/output/log_reg.txt
+    echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: ERROR ${input_data[1]} already existed" >> task-2/output/log.txt
     exit 1
 fi
 echo "${input_data[*]}" >> resources/data-pkm.csv
 
 # Print success message
-echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> task-2/output/log_reg.txt
+echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> task-2/output/log.txt
+```
 
+*1.  variabel pkm_csv_file yang berisi path ke file CSV*
+```bash
+pkm_csv_file="resources/data-pkm.csv"
+```
+Detail :
+- `pkm_csv_file="resources/data-pkm.csv"` 
+inisiasi variabel pkm_csv_file yang didapat dari resources/data-pkm.csv
 
+*2.  Mencaro nama pengusul pada kolom 1*
 
+```bash
+if grep -qi ${input_data[1]} resources/data-pkm.csv; then
+    echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: ERROR ${input_data[1]} already existed" >> task-2/output/log.txt
+    exit 1
+fi
+```
+Detail :
+-  perintah grep untuk mencari keberadaan nama pengusul `(${input_data[1]})` di dalam file CSV (`resources/data-pkm.csv`). Argumen `-qi` membuat pencarian menjadi case-insensitive, sehingga tidak memperhitungkan huruf besar/kecil. Jika nama pengusul sudah ada dalam file CSV, maka pesan ERROR akan dicetak ke file log, dan skrip akan keluar dengan kode keluar 1.
 
-* Memasukkan nama_pengusul, asal departemen, fakultas, judul proposal, dosen pendamping (nidn), skema pkm. (Sesuaikan dengan file .csv)
+*3.  Menambahkan data user*
 
-**Jawab**
+```bash
+echo "${input_data[*]}" >> resources/data-pkm.csv
+```
+Detail :
+- menambahkan data pengguna yang dimasukkan oleh pengguna ke dalam file CSV `resources/data-pkm.csv`. Input data yang disimpan dalam array `input_data` kemudian dicetak ke dalam file CSV.
 
-Ahmad_Sodik_Zainuddin, S1 Fisika, FSAD, Efektivitas Nikel pada Katoda Baterai Natrium-ion Na(Li0.2Ni0.8)O2 dengan Pelapisan Oksida Grafena Tereduksi Berbahan Dasar Biomassa Tempurung Kelapa, MOCHAMAD ZAINURI (0030016403), PKM-RE
+*4.  Mendapatkan waktu saat ini*
 
-* Setiap percobaan register akan tercatat pada log.txt dengan format YY/MM/DD hh:mm:ss MESSAGE
+```bash
+echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> task-2/output/log.txt
+```
+Detail :
+- mencetak pesan sukses ke file log `task-2/output/log.txt`, yang berisi informasi tentang pendaftaran pengguna baru. Pesan ini mencakup tanggal dan waktu pendaftaran, nama pengusul yang terdaftar, dan judul proposal yang ditambahkan.
 
-**Jawab**
+## Uji Coba Case
+**input**
+```bash
+#success case
+Enter data, separated by commas (No.,Nama_Pengusul,Departemen,Fakultas,Judul,Pendamping,Skema):
+500, Ahmad_Aja, S1 Fisika ,FSAD,Efektivitas Nikel pada Katoda Baterai Natrium-ion Na(Li0.2Ni0.8)O2 dengan Pelapisan Oksida Grafena Tereduksi Berbahan Dasar Biomassa Tempurung Kelapa ,MOCHAMAD ZAINURI (0030016403) ,PKM-RE
 
-REGISTER: ERROR User is already existed
-REGISTER: ERROR User is already existed (date '+%m/%d/%Y %H:%M:%S')
-REGISTER: ERROR User is already existed (03/21/2024 13:54:38)
-REGISTER: SUCCESS  is registered. Proposal 3, is added
-03/21/2024 13:56:35) REGISTER: SUCCESS  is registered. Proposal 3, is added
-03/21/2024 13:56:56 REGISTER: ERROR USER_NAME is already existed
-03/21/2024 13:58:38 REGISTER: ERROR 1,[1] already existed
-03/21/2024 13:58:53 REGISTER: ERROR 1,[2] already existed
-03/21/2024 13:59:12 REGISTER: ERROR tc, already existed
-03/21/2024 13:59:34 REGISTER: ERROR Rayyan, already existed
-03/21/2024 14:00:28 REGISTER: SUCCESS fwz, is registered. Proposal 5, is added
-03/21/2024 20:55:15 REGISTER: ERROR Fisika already existed
-03/21/2024 20:56:03 REGISTER: ERROR Fisika already existed
-03/21/2024 20:56:16 REGISTER: ERROR 1,Ahmad_Sodik_Zainuddin,S1 already existed
-03/21/2024 20:56:40 REGISTER: ERROR 1,Ahmad_Sodik_Zainuddin,S1 already existed
-03/21/2024 20:58:24 REGISTER: ERROR 1,Ahmad_Sodik_Zainuddin,S1 already existed
-03/21/2024 21:03:14 REGISTER: ERROR 1,Ahmad_Sodik_Zainuddin,S1 already existed
-03/21/2024 21:04:31 REGISTER: ERROR 1, already existed
-03/21/2024 21:04:44 REGISTER: ERROR Ahmad_Sodik_Zainuddin, already existed
-03/21/2024 21:05:52 REGISTER: SUCCESS Ahmad_Sodik_Zainuddi, is registered. Proposal 1, is added
-03/21/2024 21:07:42 REGISTER: SUCCESS Ahmad_Sodik_Zainudd, is registered. Proposal 1, is added
-03/21/2024 21:09:32 REGISTER: SUCCESS Ahmad_Sodik_Zainud, is registered. Proposal 1, is added
-03/21/2024 21:14:13 REGISTER: ERROR Ahmad_Sodik_Zainud, already existed
+ #fail case
+Enter data, separated by commas (No.,Nama_Pengusul,Departemen,Fakultas,Judul,Pendamping,Skema):
+1, Ahmad_Sodik_Zainud, S1 Fisika ,FSAD,Efektivitas Nikel pada Katoda Baterai Natrium-ion Na(Li0.2Ni0.8)O2 dengan Pelapisan Oksida Grafena Tereduksi Berbahan Dasar Biomassa Tempurung Kelapa ,MOCHAMAD ZAINURI (0030016403) ,PKM-RE 
 
+```
+
+**output**
+```bash
+#if success login
+03/30/2024 14:25:55 REGISTER: SUCCESS Ahmad_Aja, is registered. Proposal 500, is added
+#if failed
+03/30/2024 14:23:40 REGISTER: ERROR Ahmad_Sodik_Zainud, already existed
+```
 
 
 ### Problem 2c
@@ -486,11 +579,11 @@ REGISTER: SUCCESS  is registered. Proposal 3, is added
 * File users.txt akan diupdate setiap 1 jam sekali
 
 **Jawab**
+```bash
 #!/bin/bash
 
 # Lokasi file CSV
 pkm_csv_file="resources/data-pkm.csv"
-
 # Fungsi untuk mengekstrak nama dari file CSV
 extract_names() {
     names=()
@@ -511,522 +604,273 @@ extract_password() {
     done
 }
 
-# Fungsi untuk menulis nama dan password ke dalam file teks beserta timestamp
+# Fungsi untuk menulis nama dan password ke dalam file user.txt beserta timestamp
 write_to_file() {
-    output_file="task-2/output/users.txt"
-    > $output_file  # Bersihkan file teks sebelum menambahkan data baru
+    save_path="/home/$(whoami)/txt_test"
+    output="$save_path/users.txt"
+    mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
+    txt_file="$output"
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): Data nama dan password yang diperbarui" > "$txt_file"
     for ((i=0; i<${#names[@]}; i++)); do
-        echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> $output_file
+        echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> "$txt_file"
     done
+    echo "Data nama dan password telah berhasil diperbarui pada: $(date '+%Y-%m-%d %H:%M:%S')" >> "$txt_file"
 }
+
 
 extract_names
 extract_password
+export names
+export passwords
 write_to_file
+```
 
-echo "Data nama dan password telah berhasil diperbarui pada: $(date)"
+*1.  variabel pkm_csv_file yang berisi path ke file CSV*
+```bash
+pkm_csv_file="resources/data-pkm.csv"
+```
+Detail :
+- `pkm_csv_file="resources/data-pkm.csv"` 
+inisiasi variabel pkm_csv_file yang didapat dari resources/data-pkm.csv
 
-users.txt
+*2.  Mendapatkan data username*
 
-2024-03-22 02:11:59: Nama, FakultasPendamping
-2024-03-22 02:11:59: Ahmad, FSAD0030016403
-2024-03-22 02:12:00: Tsania, FSAD0022066013
-2024-03-22 02:12:00: DAFA, FTSPK0014038007
-2024-03-22 02:12:00: FARISHA, FDKBD0024066504
-2024-03-22 02:12:00: Fauzan, FTSPK"
-2024-03-22 02:12:00: HIMAWAN, FTSPK0030098909
-2024-03-22 02:12:00: RIJAALUL, FTIRS1008088902
-2024-03-22 02:12:00: Mario, FV0023057603
-2024-03-22 02:12:00: MOCHAMAD, FTIRS0017116704
-2024-03-22 02:12:00: FITRI, FTEIC0023017304
-2024-03-22 02:12:00: YETI, FV0022119102
-2024-03-22 02:12:00: MARSHELIA, FSAD0008046206
-2024-03-22 02:12:00: NIKOLAS, FV0031077304
-2024-03-22 02:12:00: Mahara, FSAD0008058401
-2024-03-22 02:12:00: HASNA, FTEIC0027076708
-2024-03-22 02:12:00: Rangga, FTEIC0023017304
-2024-03-22 02:12:00: PUTRI, FSAD0017088805
-2024-03-22 02:12:00: ASSYITHA, FSAD0011098901
-2024-03-22 02:12:00: ARYA, FTEIC0010039701
-2024-03-22 02:12:00: RAFI, FTEIC0016128704
-2024-03-22 02:12:00: ANIL, FTSPK0004038301
-2024-03-22 02:12:00: FIRDHA, FSAD0017116704
-2024-03-22 02:12:00: FARAH, FTIRSPOLYURETHANE
-2024-03-22 02:12:00: Muhammad, FTSPK0013027803
-2024-03-22 02:12:00: CHESYA, FTK0021098403
-2024-03-22 02:12:00: FIRMANSYAH, FTSPK0030059204
-2024-03-22 02:12:00: LAILA, FV0022119102
-2024-03-22 02:12:00: Rahma, FSAD"
-2024-03-22 02:12:00: CHRISTOPHER, FDKBD0021028302
-2024-03-22 02:12:00: NAILA, FSAD0017088805
-2024-03-22 02:12:00: AKBAR, FV0002049206
-2024-03-22 02:12:00: DYAH, FSAD0004049503
-2024-03-22 02:12:00: MUHAMMAD, FTIRS0017116704
-2024-03-22 02:12:00: Moh., FTEIC0006028701
-2024-03-22 02:12:00: THARIQ, FTIRS0710078802
-2024-03-22 02:12:00: TALITHA, FSAD"
-2024-03-22 02:12:00: NUR, FTSPK"
-2024-03-22 02:12:00: Reynafa, FV0008075805
-2024-03-22 02:12:00: Fatimah, FSAD0022059102
-2024-03-22 02:12:00: MUHAMAD, FTIRS0028129203
-2024-03-22 02:12:00: ILHAM, FSAD0022066013
-2024-03-22 02:12:00: Ristiya, FV0014128701
-2024-03-22 02:12:00: ADMIRAL, FTIRS0022097808
-2024-03-22 02:12:00: DELLA, FTSPK0030059204
-2024-03-22 02:12:00: MOCH., FTEIC0022049502
-2024-03-22 02:12:00: ATHAYA, FV0704078201
-2024-03-22 02:12:00: Sholahus, FSAD0028018104
-2024-03-22 02:12:00: TRIO, FV0008039401
-2024-03-22 02:12:00: Aldo, FTEICPengobatan
-2024-03-22 02:12:00: Patrick, FSADCandi
-2024-03-22 02:12:00: IRBAH, FTK0016046406
-2024-03-22 02:12:00: Tegar, FTIRS0026079001
-2024-03-22 02:12:00: NANDA, FDKBD0007089106
-2024-03-22 02:12:00: YOGA, FV0018088801
-2024-03-22 02:12:00: NARPHATI, FTIRS0007107302
-2024-03-22 02:12:00: Selfira, FV0002059602
-2024-03-22 02:12:00: Imam, FSAD0004026208
-2024-03-22 02:12:00: ARYA, FTSPK0013057104
-2024-03-22 02:12:00: Ina, FSAD0010129102
-2024-03-22 02:12:00: NABILAH, FSAD0002059602
-2024-03-22 02:12:00: AHMAD, FSAD0017117406
-2024-03-22 02:12:00: DEANY, FSAD0008098902
-2024-03-22 02:12:00: AISYAH, FV0008038307
-2024-03-22 02:12:00: BHISMA, FTIRS0006107601
-2024-03-22 02:12:00: TEPY, FV0002049206
-2024-03-22 02:12:00: MAULANA, FV0026039401
-2024-03-22 02:12:00: FADHILLA, FTSPK0023057505
-2024-03-22 02:12:00: MUHAMMAD, FTIRS0017107404
-2024-03-22 02:12:00: DAFFA`, FTIRS0007107302
-2024-03-22 02:12:00: Ilhami, FTEIC0008118801
-2024-03-22 02:12:00: Ahmad, FV0007089103
-2024-03-22 02:12:00: Krisna, FV0008038307
-2024-03-22 02:12:00: Muhammad, FTEIC0008118801
-2024-03-22 02:12:00: GIANA, FTSPK0031077304
-2024-03-22 02:12:00: NI, FV0701109301
-2024-03-22 02:12:00: OLIVIA, FTSPK0003029206
-2024-03-22 02:12:00: Riska, FSAD0025018107
-2024-03-22 02:12:00: Ghifari, FTEIC0028057205
-2024-03-22 02:12:00: MUSTIKA, FTK0005117103
-2024-03-22 02:12:00: FIRZA, FTSPK0012058004
-2024-03-22 02:12:00: MAHILA, FTEIC0029088201
-2024-03-22 02:12:00: Adlan, FTEIC0007019004
-2024-03-22 02:12:00: Shafa, FTSPK0003069005
-2024-03-22 02:12:00: HARUNA, FV0022119102
-2024-03-22 02:12:00: MUHAMMAD, FV0010039701
-2024-03-22 02:12:00: Ardelia, FTSPK0012068901
-2024-03-22 02:12:00: Irma, FSAD0013069302
-2024-03-22 02:12:00: NABILA, FV0026038202
-2024-03-22 02:12:00: Denurta, FV0013119201
-2024-03-22 02:12:00: ANDIAR, FTEIC0029119304
-2024-03-22 02:12:00: Rifqi, FTEIC0016068703
-2024-03-22 02:12:00: RADITYA, FSAD0016066409
-2024-03-22 02:12:00: ZUFAR, FSAD0016069006
-2024-03-22 02:12:00: Agustinus, FV0013118906
-2024-03-22 02:12:00: IQBAL, FSAD0024078002
-2024-03-22 02:12:00: Anindya, FTSPK0013027803
-2024-03-22 02:12:00: Muhammad, FTIRS0006107601
-2024-03-22 02:12:00: KHAIRIN, FSAD0025047104
-2024-03-22 02:12:00: Muhammad, FTSPK0012068901
-2024-03-22 02:12:00: INDIRA, FSAD0008097508
-2024-03-22 02:12:00: ZAHROTUL, FV0022119102
-2024-03-22 02:12:00: Saurizha, FV0002049206
-2024-03-22 02:12:00: MIFTAHUL, FTIRS0030075903
-2024-03-22 02:12:00: ABIYYU, FTSPK0012068901
-2024-03-22 02:12:00: M., FTIRS0021029003
-2024-03-22 02:12:00: ALIFFIA, FTEIC0017079501
-2024-03-22 02:12:00: Zalfaa, FV"
-2024-03-22 02:12:00: ALFINDA, FV0706049102
-2024-03-22 02:12:00: DIMAS, FTEIC0713088702
-2024-03-22 02:12:00: AGUS, FSAD0007096906
-2024-03-22 02:12:00: IZZA, FTEIC0011107607
-2024-03-22 02:12:00: RICK, FTSPK0011109204
-2024-03-22 02:12:01: Azizah, FTSPK0012058004
-2024-03-22 02:12:01: REGINA, FTEIC0007019004
-2024-03-22 02:12:01: Muhammad, FV0027075908
-2024-03-22 02:12:01: MUHAMAD, FV0023099009
-2024-03-22 02:12:01: MUHAMMAD, FTEIC0005018109
-2024-03-22 02:12:01: RAMADA, FTIRS0025079006
-2024-03-22 02:12:01: Tiffany, FVpH
-2024-03-22 02:12:01: Muhammad, FTEIC0026079401
-2024-03-22 02:12:01: NUR, FTSPK0004038705
-2024-03-22 02:12:01: MOCHAMAD, FTSPK0013027803
-2024-03-22 02:12:01: Ratu, FSAD0030118003
-2024-03-22 02:12:01: IRFAN, FV0001027806
-2024-03-22 02:12:01: CHRISTIAN, FV0013069302
-2024-03-22 02:12:01: Farhana, FSAD0022097808
-2024-03-22 02:12:01: NADHILA, FV0007089103
-2024-03-22 02:12:01: R, FK0008099404
-2024-03-22 02:12:01: Damario, FTSPK0023118710
-2024-03-22 02:12:01: Hana, FTSPK0004038301
-2024-03-22 02:12:01: YUDI, FV0003059301
-2024-03-22 02:12:01: ACHMAD, FV0018088801
-2024-03-22 02:12:01: SARAH, FTSPK0005077902
-2024-03-22 02:12:01: GHUNAWAN, FTIRS0007107302
-2024-03-22 02:12:01: MUHAMMAD, FTIRS0016129701
-2024-03-22 02:12:01: SAFIRA, FSAD0014107303
-2024-03-22 02:12:01: ERIK, FV0002049206
-2024-03-22 02:12:01: Irgi, FTEIC0014027803
-2024-03-22 02:12:01: I, FTIRS0010108402
-2024-03-22 02:12:01: I, FTIRS0025038102
-2024-03-22 02:12:01: MARDYA, FV0002049206
-2024-03-22 02:12:01: Dhiya, FTIRS0020109305
-2024-03-22 02:12:01: MUHAMMAD, FTIRS0008066404
-2024-03-22 02:12:01: Nur, FV0030059303
-2024-03-22 02:12:01: IGNATIUS, FTEIC0007019004
-2024-03-22 02:12:01: BAGUS, FV0002049206
-2024-03-22 02:12:01: Muhammad, FTEIC0017108506
-2024-03-22 02:12:01: Citra, FTIRS0021106104
-2024-03-22 02:12:01: Arya, FTEIC0006028701
-2024-03-22 02:12:01: Isnuansa, FTEIC0008118801
-2024-03-22 02:12:01: DIO, FTK0023016504
-2024-03-22 02:12:01: I, FTEIC0010099003
-2024-03-22 02:12:01: Ghozi, FTEIC0019078607
-2024-03-22 02:12:01: MUHAMMAD, FV0010039701
-2024-03-22 02:12:01: MAULANA, FTK0003089601
-2024-03-22 02:12:01: Mohammad, FSAD0020067603
-2024-03-22 02:12:01: Mochammad, FV0010039701
-2024-03-22 02:12:01: Nisaul, FTIRS0022097808
-2024-03-22 02:12:01: Vicky, FTSPK0012058004
-2024-03-22 02:12:01: ARIF, FTIRS0022097808
-2024-03-22 02:12:01: SHABRINA, FTEIC0018026604
-2024-03-22 02:12:01: RAFI, FV0008075805
-2024-03-22 02:12:01: ANDIKA, FTEIC0727038508
-2024-03-22 02:12:01: Muhammad, FV0706119201
-2024-03-22 02:12:01: LILA, FTSPK0012058004
-2024-03-22 02:12:01: Anifatihatul, FSAD0016086113
-2024-03-22 02:12:01: LINTANG, FV0706049102
-2024-03-22 02:12:01: I, FTIRS0016129701
-2024-03-22 02:12:01: Tatik, FV0008109602
-2024-03-22 02:12:01: MUHAMMAD, FTIRS0026079001
-2024-03-22 02:12:01: Hanan, FSAD0025047104
-2024-03-22 02:12:01: DELIA, FTIRS0005056508
-2024-03-22 02:12:01: Eka, FTSPK0013027803
-2024-03-22 02:12:01: AHMAD, FTEIC0713088702
-2024-03-22 02:12:01: Farsya, FTEIC0014059402
-2024-03-22 02:12:01: NASIB, FSAD0014109404
-2024-03-22 02:12:01: Mu`afa, FTEIC0007019004
-2024-03-22 02:12:01: Muhammad, FTIRS0028129203
-2024-03-22 02:12:01: DELA, FSAD0022066013
-2024-03-22 02:12:01: ROCHMAN, FTIRS0026079001
-2024-03-22 02:12:01: ARIF, FTSPK0025059004
-2024-03-22 02:12:01: TSANA, FSAD0016128813
-2024-03-22 02:12:01: PIPIT, FV0021068002
-2024-03-22 02:12:01: ADE, FV0008075805
-2024-03-22 02:12:01: LINTANG, FTK0015119006
-2024-03-22 02:12:01: BHIRAWA, FDKBD0003069401
-2024-03-22 02:12:01: Betria, FTIRS0001017026
-2024-03-22 02:12:01: HANI, FTSPK0030059204
-2024-03-22 02:12:01: KHALISA, FTSPK0025029305
-2024-03-22 02:12:01: Rajni, FSAD0004056209
-2024-03-22 02:12:01: ZEVA, FSAD0022066013
-2024-03-22 02:12:01: Shabrina, FTK0010086806
-2024-03-22 02:12:01: YUSUF, FTIRS0021029003
-2024-03-22 02:12:01: RONALDO, FTSPK"
-2024-03-22 02:12:01: PUTRI, FV0030059303
-2024-03-22 02:12:01: Putri, FTSPK0012068901
-2024-03-22 02:12:01: WAHYU, FV0021046109
-2024-03-22 02:12:01: CICILIA, FSAD0025047104
-2024-03-22 02:12:01: FAIRUZ, FSAD0007128702
-2024-03-22 02:12:01: FARELLA, FTSPK"
-2024-03-22 02:12:01: David, FTIRS0029016004
-2024-03-22 02:12:01: OMAR, FTSPKREGRESSION
-2024-03-22 02:12:01: Salsabila, FV0013118906
-2024-03-22 02:12:01: Intan, FSAD0009088103
-2024-03-22 02:12:01: Fadhil, FSAD0020059503
-2024-03-22 02:12:01: Marsyada, FV0008075805
-2024-03-22 02:12:01: DARRELL, FTIRS0017107404
-2024-03-22 02:12:01: MUHAMMAD, FV0704078201
-2024-03-22 02:12:01: MUTHIUTTHORIQ, FTIRS0021029003
-2024-03-22 02:12:01: KHANSA, FDKBD0011128801
-2024-03-22 02:12:01: SHABRINA, FTSPK0030059204
-2024-03-22 02:12:01: Isna, FTEIC0005098101
-2024-03-22 02:12:01: HAYKAL, FV0023108401
-2024-03-22 02:12:01: EFRA, FTIRS0021106104
-2024-03-22 02:12:01: Hafizah, FTIRS0003097404
-2024-03-22 02:12:01: KURNIAWAN, FV0010077305
-2024-03-22 02:12:01: Yudistira, FTIRS0017088903
-2024-03-22 02:12:01: Rangga, FSAD"
-2024-03-22 02:12:01: Husna, FTIRS0710078802
-2024-03-22 02:12:01: PATRICIA, FTIRS0014027803
-2024-03-22 02:12:01: Lazuardi, FTEIC0025127005
-2024-03-22 02:12:01: Lili, FSAD0014107303
-2024-03-22 02:12:01: DAFFA, FV0010039701
-2024-03-22 02:12:01: SAFIN, FV0013118906
-2024-03-22 02:12:01: TRIWANTO, FSAD0011098901
-2024-03-22 02:12:01: ZIDAN, FTIRS0021029003
-2024-03-22 02:12:01: Maghfiroh, FSAD0017106903
-2024-03-22 02:12:01: CHRISTOPHORUS, FTIRS0009069101
-2024-03-22 02:12:01: MUHAMMAD, FTSPK0001017026
-2024-03-22 02:12:01: Fysna, FTEIC0001096508
-2024-03-22 02:12:02: Muhammad, FTIRS0001096012
-2024-03-22 02:12:02: SHAFFA, FK0017108506
-2024-03-22 02:12:02: SITI, FV0008099404
-2024-03-22 02:12:02: M., FTEIC0022129207
-2024-03-22 02:12:02: Yenni, FTSPK0018058601
-2024-03-22 02:12:02: Muhammad, FTIRS0021029003
-2024-03-22 02:12:02: YUNIAR, FSAD0028018104
-2024-03-22 02:12:02: MUKHAMMAD, FTSPK0010099003
-2024-03-22 02:12:02: ALFEN, FTSPK0029129302
-2024-03-22 02:12:02: Muhamad, FTSPK0030059204
-2024-03-22 02:12:02: DONA, FTSPK0013027803
-2024-03-22 02:12:02: KIKI, FTSPK0005077902
-2024-03-22 02:12:02: Muhammad, FTIRS0021029003
-2024-03-22 02:12:02: FITRIYA, FTIRS0001017026
-2024-03-22 02:12:02: Dila, FSAD0030016403
-2024-03-22 02:12:02: ABDA, FSAD0028018104
-2024-03-22 02:12:02: ENGGAR, FSAD0013069302
-2024-03-22 02:12:02: Devy, FTIRS0710078802
-2024-03-22 02:12:02: OSAMA, FSAD0016069006
-2024-03-22 02:12:02: MUHAMMAD, FTIRS0026079001
-2024-03-22 02:12:02: MONICA, FVTensimeter
-2024-03-22 02:12:02: Abdillah, FSAD0012126909
-2024-03-22 02:12:02: MOHAMMAD, FTK0024039302
-2024-03-22 02:12:02: Fatimah, FDKBD0021028302
-2024-03-22 02:12:02: QUEENA, FV0002059602
-2024-03-22 02:12:02: JEASMINE, FTK0006088301
-2024-03-22 02:12:02: Meisy, FSAD0004026208
-2024-03-22 02:12:02: RADITIA, FTIRS0020058004
-2024-03-22 02:12:02: NARA, FTIRS0710078802
-2024-03-22 02:12:02: ABIYYU, FV0030049103
-2024-03-22 02:12:02: JOHNATHAN, FDKBD0026078805
-2024-03-22 02:12:02: DASHA, FTEIC0022129207
-2024-03-22 02:12:02: Bella, FSAD0009088103
-2024-03-22 02:12:02: JOSE, FTEIC0007019004
-2024-03-22 02:12:02: REGINA, FDKBD0021079601
-2024-03-22 02:12:02: LAZUARDINI, FTSPK0030059601
-2024-03-22 02:12:02: KAYLA, FTSPK0003029206
-2024-03-22 02:12:02: KOMANG, FTIRS0002049206
-2024-03-22 02:12:02: KHALIDA, FSAD0014128701
-2024-03-22 02:12:02: EREN, FSAD0701109301
-2024-03-22 02:12:02: Danang, FTSPK0004028607
-2024-03-22 02:12:02: DWI, FSAD0006039002
-2024-03-22 02:12:02: MUHAMMAD, FTEIC0010099003
-2024-03-22 02:12:02: Revelyno, FTEIC0022129207
-2024-03-22 02:12:02: MOCH., FTIRSGgfbs
-2024-03-22 02:12:02: MUHAMMAD, FSAD"
-2024-03-22 02:12:02: Farhan, FTEIC0007019004
-2024-03-22 02:12:02: HIKMATIAR, FTIRS0017107404
-2024-03-22 02:12:02: FELICIA, FTEIC0716118801
-2024-03-22 02:12:02: Kevin, FTIRS0001096012
-2024-03-22 02:12:02: EKO, FTIRS0017088903
-2024-03-22 02:12:02: Tsalits, FTSPKoleh
-2024-03-22 02:12:02: INDAH, FSAD0022066013
-2024-03-22 02:12:02: ARDHEA, FV0002049206
-2024-03-22 02:12:02: Candra, FTSPK0005077902
-2024-03-22 02:12:02: ARDI, FSAD0022066013
-2024-03-22 02:12:02: Amaliah, FSADTelur
-2024-03-22 02:12:02: REGINA, FTIRS0001096012
-2024-03-22 02:12:02: OCEAN, FTIRS0017116704
-2024-03-22 02:12:02: DIKA, FV0030059303
-2024-03-22 02:12:02: SEPTIKA, FSAD0025056009
-2024-03-22 02:12:02: MUHAMMAD, FTIRS0013028905
-2024-03-22 02:12:02: Iqbal, FTEIC0025098901
-2024-03-22 02:12:02: AURA, FTEIC0017107404
-2024-03-22 02:12:02: ANDINI, FV0706119201
-2024-03-22 02:12:02: HEBERT, FTEIC0002096405
-2024-03-22 02:12:02: FALSYABILLAH, FSAD0026079001
-2024-03-22 02:12:02: Faizin, FV0010069101
-2024-03-22 02:12:02: Samuel, FTIRS0010028202
-2024-03-22 02:12:02: MUHAMMAD, FTEIC0013098401
-2024-03-22 02:12:02: ALIF, FTEIC0716118801
-2024-03-22 02:12:02: Alexandro, FTEIC0015029503
-2024-03-22 02:12:02: Ayu, FSAD0002027910
-2024-03-22 02:12:02: ADINDA, FTEIC0002096405
-2024-03-22 02:12:02: FARINDA, FSAD0014066904
-2024-03-22 02:12:02: NI, FTIRS0706049102
-2024-03-22 02:12:02: FERDY, FSAD0013069302
-2024-03-22 02:12:02: AISYAH, FTIRS0003076606
-2024-03-22 02:12:02: DZAKKI, FV0002059602
-2024-03-22 02:12:02: Yosefine, FTEIC0002096405
-2024-03-22 02:12:02: JIHADUL, FTSPK0028108302
-2024-03-22 02:12:02: Alfuad, FV"
-2024-03-22 02:12:02: MOCHAMMAD, FV0017039402
-2024-03-22 02:12:02: ANANDA, FSAD0028018104
-2024-03-22 02:12:02: NIROGA, FDKBD0021028302
-2024-03-22 02:12:02: Citra, FV0027075908
-2024-03-22 02:12:02: LEILA, FV0008075805
-2024-03-22 02:12:02: MUHAMMAD, FTIRSCocofiber
-2024-03-22 02:12:02: Julian, FTIRS0027068004
-2024-03-22 02:12:02: DWI, FTSPK0011019101
-2024-03-22 02:12:02: RENALDI, FV0030059303
-2024-03-22 02:12:02: MUHAMMAD, FTEIC0013108907
-2024-03-22 02:12:02: AURA, FSAD0025047104
-2024-03-22 02:12:02: I, FTSPK0005069401
-2024-03-22 02:12:02: MUHAMMAD, FSAD0022097808
-2024-03-22 02:12:02: Rara, FSADTambaksari
-2024-03-22 02:12:02: ANUGERAH, FTIRS0029119304
-2024-03-22 02:12:02: ADI, FTSPK0012017408
-2024-03-22 02:12:02: Joseph, FTSPK0023069204
-2024-03-22 02:12:02: NAILAH, FTSPK0012058004
-2024-03-22 02:12:02: Mohammad, FV0022119102
-2024-03-22 02:12:02: RAFFI, FV0003059301
-2024-03-22 02:12:02: MUHAMMAD, FSAD0016069006
-2024-03-22 02:12:02: HERLANI, FSAD0013069302
-2024-03-22 02:12:02: RIFQI, FTIRSpH
-2024-03-22 02:12:02: Tharisha, FSAD0003076606
-2024-03-22 02:12:03: RANGGA, FV0016128704
-2024-03-22 02:12:03: ABDUL, FV0022119102
-2024-03-22 02:12:03: Milkha, FTSPK0028108302
-2024-03-22 02:12:03: Shinta, FV0011128801
-2024-03-22 02:12:03: Nugraha, FSAD0010048902
-2024-03-22 02:12:03: PUDAK, FDKBD0008109602
-2024-03-22 02:12:03: AULY, FSAD0004049503
-2024-03-22 02:12:03: Ahmad, FTEIC0012077006
-2024-03-22 02:12:03: Jasmine, FSAD0014109404
-2024-03-22 02:12:03: ALIFAH, FTIRS0022097808
-2024-03-22 02:12:03: CHINTYA, FV0021079009
-2024-03-22 02:12:03: KHALISHA, FTSPK0005077902
-2024-03-22 02:12:03: FIKI, FTSPK0006059201
-2024-03-22 02:12:03: ACHMAD, FV0030059303
-2024-03-22 02:12:03: Inzus, FSAD0022066013
-2024-03-22 02:12:03: AGUNG, FSAD0021067007
-2024-03-22 02:12:03: WAFIRAH, FSAD0003066507
-2024-03-22 02:12:03: MUHAMMAD, FTIRS0017116704
-2024-03-22 02:12:03: Abdul, FV0010039701
-2024-03-22 02:12:03: Febriana, FV0022119102
-2024-03-22 02:12:03: NADYAH, FTSPK0013027803
-2024-03-22 02:12:03: GHERIYA, FDKBD0016128501
-2024-03-22 02:12:03: RAFI, FTK0010086806
-2024-03-22 02:12:03: SALSABILLA, FV0027075908
-2024-03-22 02:12:03: Ahmad, FTSPK0013027803
-2024-03-22 02:12:03: ABDUL, FSAD0008098902
-2024-03-22 02:12:03: Dwi, FV0027075908
-2024-03-22 02:12:03: Muhammad, FSAD0011098901
-2024-03-22 02:12:03: Nuansa, FSAD0011098901
-2024-03-22 02:12:03: Istiazah, FSAD0022097808
-2024-03-22 02:12:03: ZALFA, FSAD0001098504
-2024-03-22 02:12:03: MOHCHAMMAD, FV0706119201
-2024-03-22 02:12:03: AURELIA, FSAD0011098901
-2024-03-22 02:12:03: AUDYA, FV0023099009
-2024-03-22 02:12:03: KURNIA, FTIRS0619019501
-2024-03-22 02:12:03: NAOMI, FTSPK0010049801
-2024-03-22 02:12:03: NAUFAL, FSAD"
-2024-03-22 02:12:03: ZENISA, FSAD0016086113
-2024-03-22 02:12:03: Bahrul, FTSPK0027097208
-2024-03-22 02:12:03: THERESIA, FSAD0017106903
-2024-03-22 02:12:03: Arif, FTIRSEkonomis
-2024-03-22 02:12:03: SEKAR, FSAD0006066107
-2024-03-22 02:12:03: GALIH, FTIRS0025079006
-2024-03-22 02:12:03: Saka, FV0009069004
-2024-03-22 02:12:03: MUHAMMAD, FSAD0011098901
-2024-03-22 02:12:03: Adetiasyah, FVProbolinggo
-2024-03-22 02:12:03: Hanin, FTIRS0001096012
-2024-03-22 02:12:03: Muhammad, FTIRS0026058206
-2024-03-22 02:12:03: LATHIFATUS, FTK0005117103
-2024-03-22 02:12:03: Fatimah, FTSPK0012058004
-2024-03-22 02:12:03: AMANDA, FV0002059602
-2024-03-22 02:12:03: ADITYA, FTEIC0025038105
-2024-03-22 02:12:03: Reynaldi, FTSPK0013027803
-2024-03-22 02:12:03: Nafian, FTEIC0007107302
-2024-03-22 02:12:03: SADA, FV0022119102
-2024-03-22 02:12:03: Roger, FTIRS0024077901
-2024-03-22 02:12:03: REYHAN, FTIRS0007107302
-2024-03-22 02:12:03: M., FTIRS0029127908
-2024-03-22 02:12:03: RAPHAEL, FTK0010057505
-2024-03-22 02:12:03: AMELIA, FTSPK0011128801
-2024-03-22 02:12:03: TOBING, FV0023108401
-2024-03-22 02:12:03: AHMAD, FTSPK0001038703
-2024-03-22 02:12:03: JIHAD, FV0030059303
-2024-03-22 02:12:03: ISTIGHFAROH, FSAD0014107303
-2024-03-22 02:12:03: GREGORY, FTIRS0710078802
-2024-03-22 02:12:03: PURWO, FTIRS0002059602
-2024-03-22 02:12:03: Fatkhulil, FV0706119201
-2024-03-22 02:12:03: BUNGA, FSAD0011098901
-2024-03-22 02:12:03: JIRYAN, FSAD0705018801
-2024-03-22 02:12:03: HAPPY, FTIRS0003097404
-2024-03-22 02:12:03: BINTANG, FV0030059601
-2024-03-22 02:12:03: ELANG, FTIRS0007107302
-2024-03-22 02:12:03: BYRLIANTY, FV0002059602
-2024-03-22 02:12:03: Naufal, FTIRS0710078802
-2024-03-22 02:12:03: Riga, FSAD0011098901
-2024-03-22 02:12:03: ARDA, FV0030059303
-2024-03-22 02:12:03: Raphael, FTIRS0003097404
-2024-03-22 02:12:03: YUSTIA, FV0016089204
-2024-03-22 02:12:03: Rivansyah, FTEIC0028058001
-2024-03-22 02:12:03: Nazilla, FTSPK0003108401
-2024-03-22 02:12:03: VALENT, FTSPK0012069003
-2024-03-22 02:12:03: MAHARANI, FV0023108401
-2024-03-22 02:12:03: NAILA, FTSPK0020056106
-2024-03-22 02:12:03: GIFFANI, FSAD0013037105
-2024-03-22 02:12:03: Sukma, FTEIC0003068004
-2024-03-22 02:12:03: BRELLYAN, FV0010039701
-2024-03-22 02:12:03: HANIFAH, FSAD0013069302
-2024-03-22 02:12:03: Chandra, FTIRSMesin
-2024-03-22 02:12:03: SHAFIRA, FTIRS0028129203
-2024-03-22 02:12:03: MUHAMMAD, FSAD0025049302
-2024-03-22 02:12:03: Christopher, FTEIC0013027002
-2024-03-22 02:12:03: Prameswari, FTK0027037902
-2024-03-22 02:12:03: MUHAMMAD, FV0010039701
-2024-03-22 02:12:03: NAURA, FTSPK0005077902
-2024-03-22 02:12:03: Aisyah, FTSPK0013027803
-2024-03-22 02:12:03: Sifra, FSAD0013069302
-2024-03-22 02:12:03: Nazia, FSAD0010078105
-2024-03-22 02:12:03: Rizqi, FSAD0011098901
-2024-03-22 02:12:03: Ilzam, FTSPK0012058004
-2024-03-22 02:12:03: IGNETIA, FSAD0025018107
-2024-03-22 02:12:03: HANDIKA, FV0017128909
-2024-03-22 02:12:03: BERLIAND, FTEIC0008118801
-2024-03-22 02:12:03: AMILATUS, FSAD0014107303
-2024-03-22 02:12:03: ADITYA, FTSPK0015049801
-2024-03-22 02:12:03: TIARA, FTSPK0018089001
-2024-03-22 02:12:03: RAFI, FTEIC0022066013
-2024-03-22 02:12:03: KEMALA, FV0008075805
-2024-03-22 02:12:03: ALVANZA, FSAD0010048902
-2024-03-22 02:12:03: FARHAN, FV0008109602
-2024-03-22 02:12:03: TALITA, FK0007107302
-2024-03-22 02:12:04: ROZAN, FV0022119102
-2024-03-22 02:12:04: JUNATHAN, FTEIC0028047104
-2024-03-22 02:12:04: ANTONIA, FDKBD0013108907
-2024-03-22 02:12:04: Sofi, FTSPK0009017701
-2024-03-22 02:12:04: KATHERINA, FTEIC0007097404
-2024-03-22 02:12:04: Safitri, FTSPK0029129302
-2024-03-22 02:12:04: MOHAMMAD, FSAD0013069302
-2024-03-22 02:12:04: Bintang, FTEIC0025098901
-2024-03-22 02:12:04: OWIGA, FDKBD0021028302
-2024-03-22 02:12:04: RIFKY, FV0706049102
-2024-03-22 02:12:04: Althea, FV0706049102
-2024-03-22 02:12:04: Mohammad, FSAD0020069107
-2024-03-22 02:12:04: Yuliana, FSAD0015017502
-2024-03-22 02:12:04: HERA, FTK0015097108
-2024-03-22 02:12:04: Muhammad, FV0027075908
-2024-03-22 02:12:04: FEBRIAN, FV0704128501
-2024-03-22 02:12:04: DIANA, FV0022119102
-2024-03-22 02:12:04: Achmad, FV0010039701
-2024-03-22 02:12:04: Bihar, FSAD0024098303
-2024-03-22 02:12:04: ASTRI, FTSPK0018089001
-2024-03-22 02:12:04: Shafira, FDKBD0003069401
-2024-03-22 02:12:04: LIVETA, FTSPK0002047807
-2024-03-22 02:12:04: M, FV0023108401
-2024-03-22 02:12:04: THARIQ, FTEIC0727038508
-2024-03-22 02:12:04: YUDHADARMA, FTIRS0013017802
-2024-03-22 02:12:04: Naila, FTSPK0013027803
-2024-03-22 02:12:04: ADDIEN, FSAD0007027203
-2024-03-22 02:12:04: Fathor, FV0023108401
-2024-03-22 02:12:04: ZULFA, FSAD0013069302
-2024-03-22 02:12:04: Hanan, FSAD0701099201
-2024-03-22 02:12:04: Bayu, FTEIC0027058305
-2024-03-22 02:12:04: MUHAMMAD, FTIRS0003038204
-2024-03-22 02:12:04: NUR, FTIRS0022097808
-2024-03-22 02:12:04: NUR, FTIRS0029119304
-2024-03-22 02:12:04:  Ahmad, FSAD0030016403
-2024-03-22 02:12:04:  Ahmad, FSAD0030016403
+```bash
+extract_names() {
+    names=()
+    IFS=$'\n'
+    array=($(awk -F, '{split($2, a, "_"); print a[1]}' "$pkm_csv_file"))
+    for word in "${array[@]}"; do
+        names+=("$word")
+    done
+}
+```
+Detail :
+-  Fungsi ini bertugas untuk mengekstrak nama dari file CSV. Pertama, variabel `names` diinisialisasi sebagai array kosong. Kemudian, dengan menggunakan AWK, bagian kedua dari setiap baris (nama) dipisahkan menggunakan `_` sebagai delimiter dan hanya bagian pertama (sebelum _) yang disimpan dalam array. Setiap elemen array kemudian ditambahkan ke dalam array names.
 
+*3.  Mendapatkan data password*
 
+```bash
+extract_password() {
+    passwords=()
+    IFS=$'\n'
+    array=($(awk -F, '{split($4, a, " "); split($6, b, " "); gsub(/[()]/, "", b[length(b)]); printf("%s%s\n", a[1], b[length(b)])}' "$pkm_csv_file"))
+    for word in "${array[@]}"; do
+        passwords+=("$word")
+    done
+}
+
+```
+Detail :
+- Fungsi ini bertugas untuk mengekstrak password dari file CSV. Variabel `passwords` diinisialisasi sebagai array kosong. Menggunakan AWK, bagian keempat dan keenam dari setiap baris (password) dipisahkan dan diproses sedemikian rupa untuk menghasilkan password yang diinginkan. Setiap password kemudian ditambahkan ke dalam array `passwords`.
+
+*4.  Meletakkan nilai data nama dan password yang telah diperbarui pada file users.txt*
+
+```bash
+write_to_file() {
+    save_path="/home/$(whoami)/txt_test"
+    output="$save_path/users.txt"
+    mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
+    txt_file="$output"
+    echo "$(date '+%Y-%m-%d %H:%M:%S'): Data nama dan password yang diperbarui" > "$txt_file"
+    for ((i=0; i<${#names[@]}; i++)); do
+        echo "$(date '+%Y-%m-%d %H:%M:%S'): ${names[$i]}, ${passwords[$i]}" >> "$txt_file"
+    done
+    echo "Data nama dan password telah berhasil diperbarui pada: $(date '+%Y-%m-%d %H:%M:%S')" >> "$txt_file"
+}
+extract_names
+extract_password
+export names
+export passwords
+write_to_file
+```
+Detail :
+- Fungsi ini bertugas untuk menulis nama dan password yang sudah diekstrak ke dalam sebuah file user.txt beserta dengan timestamp. Pertama, sebuah direktori ditentukan untuk menyimpan file user.txt tersebut. Jika direktori tersebut belum ada, maka akan dibuat. Setelah itu, file user.txt yang akan menampung data nama dan password dibuat atau dihapus jika sudah ada sebelumnya. Selanjutnya, data nama dan password dituliskan ke dalam file user.txt dengan format yang sesuai. Akhirnya, pesan konfirmasi berhasil ditambahkan ke dalam file `user.txt`.
+
+*5.  Crontab*
+```bash
+@hourly /usr/operating-system/praktikum-modul-1-d04/task-2/yu_database.sh
+```
+- crontab dijalankan setiap satu jam sekali
+
+//output
 
 ### Kendala
 
 ## 3️⃣ Soal 3
 Buatlah program monitoring resource pada setiap server. Cukup monitoring RAM dan monitoring size suatu directory. Untuk RAM gunakan command free -m. Untuk disk gunakan command du -sh <target_path>. Catat semua metrics yang didapatkan dari hasil free -m. Untuk hasil du -sh <target_path> catat size dari path directory tersebut. Untuk target_path yang akan dimonitor adalah /home/{user}/.
+
 ### Problem 3a
 Masukkan semua metrics ke dalam suatu file log bernama metrics_{YmdHms}.log. {YmdHms} adalah waktu disaat file script bash kalian dijalankan. Misal dijalankan pada 2024-03-30 15:00:00, maka file log yang akan tergenerate adalah metrics_20240330150000.log.
 
 **Jawab**
+```bash
+#!/bin/bash
+
+#target path yang akan dimonitoring
+target_path="/home/$(whoami)/"
+
+#path penyimpanan log
+save_path="/home/$(whoami)/metrics"
+
+#buat direktori untuk menyimpan log
+mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
+
+#pola nama file log
+log_file="$save_path/metrics_$(date +"%Y%m%d%H%M%S").log"
+
+#fungsi untuk mencatat metrik
+log_metrics() {
+  #metrik penggunaan RAM
+  ram_metrics=$(free -m | awk 'NR==2 {printf "%d,%d,%d,%d,%d,%d", $2, $3, $4, $5, $6, $7}')
+
+  #metrik memori swap
+  swap_metrics=$(free -m | awk 'NR==3 {printf ",%d,%d,%d", $2, $3, $4}')
+
+  #metrik penggunaan disk
+  disk_metrics=$(du -sh "$target_path" | awk -v target_path="$target_path" '{printf ",%s,%s\n", target_path, $1 }')
+
+  #menulis metrik ke file log
+  echo "mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" >> "$log_file"
+  echo "$ram_metrics$swap_metrics$disk_metrics" >> "$log_file"
+}
+
+#cetak metrik
+log_metrics
+```
+*1.  Inisiasi variabel path*
+
+```bash
+target_path="/home/$(whoami)/"
+save_path="/home/$(whoami)/metrics"
+```
+Detail :
+- gf
+
+*2.  Membuat direktori*
+
+```bash
+mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
+```
+Detail :
+-  membuat direktori penyimpanan log. Jika pembuatan direktori gagal, pesan kesalahan akan dicetak.
+
+*3.  Menyimpan log file dalam format yang ditentukan*
+
+```bash
+log_file="$save_path/metrics_$(date +"%Y%m%d%H%M%S").log"
+```
+Detail :
+-  `log_file` menyimpan path lengkap untuk file log baru yang akan dibuat. Nama file log ini akan berisi timestamp untuk menandakan waktu saat log tersebut dibuat.
+
+*4.  Fungsi untuk mendapatkan informasi ram metrics, swap metrics, dan disk metrics*
+
+```bash
+log_metrics() {
+  #metrik penggunaan RAM
+  ram_metrics=$(free -m | awk 'NR==2 {printf "%d,%d,%d,%d,%d,%d", $2, $3, $4, $5, $6, $7}')
+
+  #metrik memori swap
+  swap_metrics=$(free -m | awk 'NR==3 {printf ",%d,%d,%d", $2, $3, $4}')
+
+  #metrik penggunaan disk
+  disk_metrics=$(du -sh "$target_path" | awk -v target_path="$target_path" '{printf ",%s,%s\n", target_path, $1 }')
+```
+Detail :
+-  `ram_metrics` berisi metrik penggunaan RAM. Perintah free -m digunakan untuk mendapatkan informasi penggunaan RAM, dan kemudian dengan menggunakan AWK, baris kedua (NR==2) dari output tersebut diambil, dan data-data penggunaan RAM diambil untuk kemudian dicetak dalam satu baris dengan format yang telah ditentukan
+- `swap_metrics` berisi metrik penggunaan swap. Mirip dengan sebelumnya, perintah free -m digunakan untuk mendapatkan informasi penggunaan swap, dan kemudian dengan menggunakan AWK, baris ketiga (NR==3) dari output tersebut diambil, dan data-data penggunaan swap diambil untuk kemudian dicetak dalam satu baris dengan format yang telah ditentukan.
+- `swap_metrics` berisi metrik penggunaan swap. Mirip dengan sebelumnya, perintah free -m digunakan untuk mendapatkan informasi penggunaan swap, dan kemudian dengan menggunakan AWK, baris ketiga (NR==3) dari output tersebut diambil, dan data-data penggunaan swap diambil untuk kemudian dicetak dalam satu baris dengan format yang telah ditentukan.
+
+*5.  Menampilkan output pada file yang telah diinisialisasi*
+
+```bash
+echo "mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" >> "$log_file"
+echo "$ram_metrics$swap_metrics$disk_metrics" >> "$log_file"
+```
+Detail :
+-   Membuat header kolom ke file log. Header ini akan berisi nama-nama kolom yang sesuai dengan metrik-metrik yang dicatat
+- Menulis semua metrik yang telah dikumpulkan ke dalam file log. Semua metrik tersebut akan ditulis dalam satu baris, setelah header kolom, sehingga setiap kolom akan memiliki nilai yang sesuai.
+
+
+## output
+- File yang terbentuk
+![alt text](/resources/readme-image/3a-1.png)
+```bash
+mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+24355,12311,11819,17,223,11913,48263,114,48149,/home/barakallah/,325M
+```
 
 ### Problem 3b
 Script untuk mencatat metrics diatas diharapkan dapat berjalan otomatis setiap menit.
 
 **Jawab**
+```bash
+#!/bin/bash
+
+#mendapatkan waktu saat ini
+current_date=$(date +'%Y%m%d')
+
+#mendapatkan list file log aggregasi dari satu hari
+log_files=$(ls /home/$(whoami)/metrics/metrics_agg_${current_date}*.log)
+
+#menggabungkan semua file log menjadi satu
+cat $log_files > /home/$(whoami)/metrics/metrics_agg_${current_date}.log
+
+#mengompres file log menjadi file .gz
+gzip /home/$(whoami)/metrics/metrics_agg_${current_date}.log
+
+#mengubah nama file hasil kompresi
+mv /home/$(whoami)/metrics/metrics_agg_${current_date}.log.gz /home/$(whoami)/metrics/backup_metrics_${current_date}.gz
+
+#menghapus file log asli setelah terkompres
+rm $log_files
+```
+
+*1.  Inisiasi variabel path*
+
+```bash
+#mendapatkan waktu saat ini
+current_date=$(date +'%Y%m%d')
+```
+Detail :
+-   inisialisasi variabel current_date dengan tanggal saat ini dalam format YYYYMMDD menggunakan perintah date.
+
+*2.  Mencari file dengan nama yang sesuai*
+
+```bash
+#mendapatkan list file log aggregasi dari satu hari
+log_files=$(ls /home/$(whoami)/metrics/metrics_agg_${current_date}*.log)
+```
+Detail :
+-   perintah ls untuk mencari file-file log yang memiliki pola nama yang sesuai dengan `metrics_agg_${current_date}*.log` di dalam direktori `/home/$(whoami)/metrics/`. Hasilnya disimpan dalam variabel `log_files`.
+
+*3.  Menggabungkan semua file log*
+
+```bash
+#menggabungkan semua file log menjadi satu
+cat $log_files > /home/$(whoami)/metrics/metrics_agg_${current_date}.log
+```
+Detail :
+-   perintah cat untuk menggabungkan semua file log yang ditemukan dalam variabel log_files menjadi satu file bernama metrics_agg_${current_date}.log di dalam direktori   `/home/$(whoami)/metrics/`
+
+*4.  Mengubah nama file*
+
+```bash
+mv /home/$(whoami)/metrics/metrics_agg_${current_date}.log.gz /home/$(whoami)/metrics/backup_metrics_${current_date}.gz
+
+```
+Detail :
+-   perintah mv untuk mengubah nama file hasil kompresi menjadi backup_metrics_${current_date}.gz.
+
+*5.  Menghapus file*
+
+```bash
+#menghapus file log asli setelah terkompres
+rm $log_files
+```
+Detail :
+-   menghapus file-file log asli yang telah digabungkan dan dikompresi.
+
 
 ### Problem 3c
 Kemudian, buat satu script untuk membuat aggregasi file log ke satuan jam. Script aggregasi akan memiliki info dari file-file yang tergenerate tiap menit. Dalam hasil file aggregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. File aggregasi akan ditrigger untuk dijalankan setiap jam secara otomatis. Berikut contoh nama file hasil aggregasi metrics_agg_2023033015.log dengan format metrics_agg_{YmdH}.log.
