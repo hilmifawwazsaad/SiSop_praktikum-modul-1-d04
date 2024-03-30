@@ -1492,10 +1492,9 @@ chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 - Isi file `metrics_agg_${current_hour}.log`
 ```bash
 type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
-minimum,999999,999999,999999,999999,999999,999999,999999,999999,999999,/home/barakallah/,999999M
-maximum,0,0,0,0,0,0,0,0,0,/home/barakallah/,0M
-average,499999,499999,499999,499999,499999,499999,499999,499999,499999,/home/barakallah/,499999M
-
+minimum,24355,9446,14632,17,223,14725,48263,15,48248,/home/barakallah/,325
+maximum,24355,9499,14684,17,223,14777,48263,15,48248,/home/barakallah/,325
+average,24355,9472,14658,17,223,14751,48263,15,48248,/home/barakallah/,325
 ```
 
 ### Problem 3d
