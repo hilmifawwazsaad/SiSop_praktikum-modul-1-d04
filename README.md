@@ -1335,11 +1335,11 @@ if [ "$1" = "4a" ]; then
 
 *9. **Dokumentasi***
 - Execute `isabel.sh 4a`
-![alt text](image.png)
+![alt text](/praktikum-modul-1-d04/resources/readme-image/4a-1.png)
 - Folder yang terbentuk
-![alt text](image-1.png)
+![alt text](/praktikum-modul-1-d04/resources/readme-image/4a-2.png)
 - Ketika execute belum memenuhi kondisi pertama dan kedua
-![alt text](image-2.png)
+![alt text](/praktikum-modul-1-d04/resources/readme-image/4a-3.png)
 
 
 ### Problem 4b
