@@ -1265,6 +1265,8 @@ echo "$ram_metrics$swap_metrics$disk_metrics" >> "$log_file"
 ## output
 - File yang terbentuk
 ![alt text](/resources/readme-image/3a-3.png)
+- execute
+![alt text](/resources/readme-image/3c-4.png)
 ```bash
 mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
 24355,12311,11819,17,223,11913,48263,114,48149,/home/barakallah/,325M
