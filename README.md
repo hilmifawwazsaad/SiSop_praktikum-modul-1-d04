@@ -1486,7 +1486,7 @@ chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 
 *8. **Dokumentasi***
 - Execute `aggregate_minutes_to_hourly_log.sh`
-.....
+![alt text](/resources/readme-image/3c-2.png)
 - Output
 ![alt text](/resources/readme-image/3c-1.png)
 - Isi file `metrics_agg_${current_hour}.log`
@@ -1543,7 +1543,7 @@ rm $log_files
 - `/usr/operating-system/praktikum-modul-1-d04/task-3/bakcup_metrics.sh` menunjukkan path dari file `bakcup_metrics.sh`.
 
 *8. **Dokumentasi***
-- Execute `bash task-3/bakcup_metrics.sh`
+- Execute `bakcup_metrics.sh`
 ![alt text](/resources/readme-image/3d-1.png)
 - Output
 ![alt text](/resources/readme-image/3b-1.png)
