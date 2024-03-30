@@ -66,7 +66,7 @@ BEGIN {
 pkm_tsv_file="resources/DataPKM.tsv"
 awk -F'\t' '
 ```
-Detail :
+ 
 - `pkm_tsv_file="resources/DataPKM.tsv"` 
 inisiasi variabel pkm_tsv_file yang didapat dari resources/DataPKM.tsv
 - `awk -F'\t' '` 
@@ -79,7 +79,7 @@ BEGIN {
     print "No. Nama Pengusul"
 }
 ```
-Detail :
+ 
 - `BEGIN` 
 inisiasi variabel untuk menyimpan nilai dari judul maks
 - `print "No. Nama Pengusul"` 
@@ -91,7 +91,7 @@ menamplkan tulisan No. dan Nama Pengusul pada baris paling atas untuk memperjela
     gsub(/_/, " ", $2)
     split($5, judul, " ")
 ```
-Detail :
+ 
 - `gsub (/_/, " ", $2)` 
 mengubah antara underscore menjadi spasi pada kolom kedua (kolom nama pengusul)
 - `split($5, judul, " ")` 
@@ -105,7 +105,7 @@ memisahkan setiap spasi untuk dideteksi pada kolom judul (kolom judul)
 }
 ' "$pkm_tsv_file"
 ```
-Detail :
+ 
 - `if (length(judul) > maksimum_judul)` 
 mendeteksi apakah panjang dari judul yang displit tadi melebihi 20 atau tidak, jika iya tampilkan nomor (kolom 1) dan nama pengusul (kolom 2)
 - `' "$pkm_tsv_file"` 
@@ -172,7 +172,7 @@ END {
 pkm_tsv_file="resources/DataPKM.tsv"
 awk -F'\t' '
 ```
-Detail :
+ 
 - `pkm_tsv_file="resources/DataPKM.tsv"` 
 inisiasi variabel pkm_tsv_file yang didapat dari resources/DataPKM.tsv
 - `awk -F'\t' '` 
@@ -188,7 +188,7 @@ menggunakan separator \t untuk memberi tahu awk bahwa tab adalah pemisah
     }
 }
 ```
-Detail :
+ 
 - ` if ($7 in schema) {
         schema[$7]++}` 
 jika ada skema yang sama maka increment
@@ -211,7 +211,7 @@ END {
 }
 ' "$pkm_tsv_file"
 ```
-Detail :
+ 
 - ` pkm_paling_diminati = 0` 
 inisiasi variabel pkm paling diminati
 - `for (i in schema) ` 
@@ -285,7 +285,7 @@ pkm_tsv_file="resources/DataPKM.tsv"
 awk -F'\t' '
 ```
 
-Detail :
+ 
 - `pkm_tsv_file="resources/DataPKM.tsv"` 
 inisiasi variabel pkm_tsv_file yang didapat dari resources/DataPKM.tsv
 - `awk -F'\t' '` 
@@ -298,7 +298,7 @@ BEGIN {
     dosbing = ""
 }
 ```
-Detail :
+ 
 - `BEGIN` 
 bagian yang dijalankan sebelum AWK mulai membaca baris file, sehingga dibuat variabel kosong untuk mahasiswa dan dosbing yang diisi ketika read file tsv
 
@@ -310,11 +310,11 @@ bagian yang dijalankan sebelum AWK mulai membaca baris file, sehingga dibuat var
     nama_dosbing = $6
     gsub(/_/, " ", nama_mhs)
 ```
-Detail :
+ 
 - `nama_mhs = $2
     nama_dosbing = $6` 
 inisisasi nama_mhs dan nama_dosbing diambil pada kolom kedua dan keenam
-Detail :
+ 
 - `gsub(/_/, " ", nama_mhs)` 
 fungsi gsub digunakan untuk mengganti underscore (_) menjadi spasi ( ) pada kolom nama_mhs
 
@@ -324,7 +324,7 @@ fungsi gsub digunakan untuk mengganti underscore (_) menjadi spasi ( ) pada kolo
     dosen_pembimbing[nama_mhs] = dosen_pembimbing[nama_mhs] nama_dosbing
 }
 ```
-Detail :
+ 
 - ` count[nama_mhs]++` 
 menghitung nama_mhs yang memiliki index/string yang sama
 - `dosen_pembimbing[nama_mhs] = dosen_pembimbing[nama_mhs] nama_dosbing` 
@@ -341,10 +341,10 @@ END {
 }
 ' "$pkm_tsv_file"
 ```
-Detail :
+ 
 - `END` 
 mendapatkan nilai keseluruhan index mhs yang double kemudian di looping sesuai dengan jumlah count. Jika terhitung lebih dari 1 maka akan menampilkan nama mhs dan nama dosen pembimbing yang bersangkutan
-Detail :
+ 
 - `' "$pkm_tsv_file"` 
 menjalankan script AWK dan memberikan file TSV yang akan diproses ke dalamnya.
 
@@ -400,7 +400,7 @@ echo "$time_input" "$login_attempt" >> task-2/output/log.txt
 ```bash
 pkm_csv_file="resources/data-pkm.csv"
 ```
-Detail :
+ 
 - `pkm_csv_file="resources/data-pkm.csv"` 
 inisiasi variabel pkm_csv_file yang didapat dari resources/data-pkm.csv
 
@@ -413,7 +413,7 @@ read name
 echo "Please enter a password: "
 read password
 ```
-Detail :
+ 
 - Menerima input dengan format username adalah nama pertama dan password adalah gabungan dari nama fakultas dan NIDN dosen
 
 *3.  Mendapatkan waktu saat ini*
@@ -421,7 +421,7 @@ Detail :
 ```bash
 time_input=$(date '+%m/%d/%Y %H:%M:%S')
 ```
-Detail :
+ 
 - Mendapatkan waktu saat ini dengan format bulan hari tahun jam menit detik sebagai detil bahwa data diupdate pada waktu tersebut
 
 *4.  Mendapatkan waktu saat ini*
@@ -442,7 +442,7 @@ login_attempt=$(awk -F, -v name="$name" -v password="$password" 'BEGIN { found=0
     }
 }' "$pkm_csv_file")
 ```
-Detail :
+ 
 - Menggunakan awk untuk memeriksa apakah nama dan kata sandi yang dimasukkan oleh pengguna cocok dengan entri yang ada dalam file CSV.
 - F, mengatur pemisah untuk file CSV sebagai koma (,).
 - v name="$name" -v password="$password" digunakan untuk memasukkan variabel shell (name dan password) ke dalam skrip awk.
@@ -470,7 +470,7 @@ Pada bagian END, jika tidak ditemukan kecocokan, pesan error akan dicetak.
 ```bash
 echo "$time_input" "$login_attempt" >> task-2/output/log.txt
 ```
-Detail :
+ 
 - Menambahkan waktu saat ini dan hasil percobaan login ke file log.
 
 ## Uji Coba Case
@@ -521,7 +521,7 @@ echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registe
 ```bash
 pkm_csv_file="resources/data-pkm.csv"
 ```
-Detail :
+ 
 - `pkm_csv_file="resources/data-pkm.csv"` 
 inisiasi variabel pkm_csv_file yang didapat dari resources/data-pkm.csv
 
@@ -533,7 +533,7 @@ if grep -qi ${input_data[1]} resources/data-pkm.csv; then
     exit 1
 fi
 ```
-Detail :
+ 
 -  perintah grep untuk mencari keberadaan nama pengusul `(${input_data[1]})` di dalam file CSV (`resources/data-pkm.csv`). Argumen `-qi` membuat pencarian menjadi case-insensitive, sehingga tidak memperhitungkan huruf besar/kecil. Jika nama pengusul sudah ada dalam file CSV, maka pesan ERROR akan dicetak ke file log, dan skrip akan keluar dengan kode keluar 1.
 
 *3.  Menambahkan data user*
@@ -541,7 +541,7 @@ Detail :
 ```bash
 echo "${input_data[*]}" >> resources/data-pkm.csv
 ```
-Detail :
+ 
 - menambahkan data pengguna yang dimasukkan oleh pengguna ke dalam file CSV `resources/data-pkm.csv`. Input data yang disimpan dalam array `input_data` kemudian dicetak ke dalam file CSV.
 
 *4.  Mendapatkan waktu saat ini*
@@ -549,7 +549,7 @@ Detail :
 ```bash
 echo "$(date '+%m/%d/%Y %H:%M:%S') REGISTER: SUCCESS ${input_data[1]} is registered. Proposal ${input_data[0]} is added" >> task-2/output/log.txt
 ```
-Detail :
+ 
 - mencetak pesan sukses ke file log `task-2/output/log.txt`, yang berisi informasi tentang pendaftaran pengguna baru. Pesan ini mencakup tanggal dan waktu pendaftaran, nama pengusul yang terdaftar, dan judul proposal yang ditambahkan.
 
 ## Uji Coba Case
@@ -626,7 +626,7 @@ write_to_file
 ```bash
 pkm_csv_file="resources/data-pkm.csv"
 ```
-Detail :
+
 - `pkm_csv_file="resources/data-pkm.csv"` 
 inisiasi variabel pkm_csv_file yang didapat dari resources/data-pkm.csv
 
@@ -642,7 +642,7 @@ extract_names() {
     done
 }
 ```
-Detail :
+ 
 -  Fungsi ini bertugas untuk mengekstrak nama dari file CSV. Pertama, variabel `names` diinisialisasi sebagai array kosong. Kemudian, dengan menggunakan AWK, bagian kedua dari setiap baris (nama) dipisahkan menggunakan `_` sebagai delimiter dan hanya bagian pertama (sebelum _) yang disimpan dalam array. Setiap elemen array kemudian ditambahkan ke dalam array names.
 
 *3.  Mendapatkan data password*
@@ -658,7 +658,7 @@ extract_password() {
 }
 
 ```
-Detail :
+
 - Fungsi ini bertugas untuk mengekstrak password dari file CSV. Variabel `passwords` diinisialisasi sebagai array kosong. Menggunakan AWK, bagian keempat dan keenam dari setiap baris (password) dipisahkan dan diproses sedemikian rupa untuk menghasilkan password yang diinginkan. Setiap password kemudian ditambahkan ke dalam array `passwords`.
 
 *4.  Meletakkan nilai data nama dan password yang telah diperbarui pada file users.txt*
@@ -681,7 +681,7 @@ export names
 export passwords
 write_to_file
 ```
-Detail :
+
 - Fungsi ini bertugas untuk menulis nama dan password yang sudah diekstrak ke dalam sebuah file user.txt beserta dengan timestamp. Pertama, sebuah direktori ditentukan untuk menyimpan file user.txt tersebut. Jika direktori tersebut belum ada, maka akan dibuat. Setelah itu, file user.txt yang akan menampung data nama dan password dibuat atau dihapus jika sudah ada sebelumnya. Selanjutnya, data nama dan password dituliskan ke dalam file user.txt dengan format yang sesuai. Akhirnya, pesan konfirmasi berhasil ditambahkan ke dalam file `user.txt`.
 
 *5.  Crontab*
@@ -1219,15 +1219,14 @@ log_metrics
 target_path="/home/$(whoami)/"
 save_path="/home/$(whoami)/metrics"
 ```
-Detail :
-- gf
+- menginisiasi nilai save_path yang digunakan sebagai directory untuk menyimpan file
 
 *2.  Membuat direktori*
 
 ```bash
 mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
 ```
-Detail :
+
 -  membuat direktori penyimpanan log. Jika pembuatan direktori gagal, pesan kesalahan akan dicetak.
 
 *3.  Menyimpan log file dalam format yang ditentukan*
@@ -1235,7 +1234,7 @@ Detail :
 ```bash
 log_file="$save_path/metrics_$(date +"%Y%m%d%H%M%S").log"
 ```
-Detail :
+
 -  `log_file` menyimpan path lengkap untuk file log baru yang akan dibuat. Nama file log ini akan berisi timestamp untuk menandakan waktu saat log tersebut dibuat.
 
 *4.  Fungsi untuk mendapatkan informasi ram metrics, swap metrics, dan disk metrics*
@@ -1248,7 +1247,6 @@ log_metrics() {
 
   disk_metrics=$(du -sh "$target_path" | awk -v target_path="$target_path" '{printf ",%s,%s\n", target_path, $1 }')
 ```
-Detail :
 -  `ram_metrics` berisi metrik penggunaan RAM. Perintah free -m digunakan untuk mendapatkan informasi penggunaan RAM, dan kemudian dengan menggunakan AWK, baris kedua (NR==2) dari output tersebut diambil, dan data-data penggunaan RAM diambil untuk kemudian dicetak dalam satu baris dengan format yang telah ditentukan
 - `swap_metrics` berisi metrik penggunaan swap. Mirip dengan sebelumnya, perintah free -m digunakan untuk mendapatkan informasi penggunaan swap, dan kemudian dengan menggunakan AWK, baris ketiga (NR==3) dari output tersebut diambil, dan data-data penggunaan swap diambil untuk kemudian dicetak dalam satu baris dengan format yang telah ditentukan.
 - `swap_metrics` berisi metrik penggunaan swap. Mirip dengan sebelumnya, perintah free -m digunakan untuk mendapatkan informasi penggunaan swap, dan kemudian dengan menggunakan AWK, baris ketiga (NR==3) dari output tersebut diambil, dan data-data penggunaan swap diambil untuk kemudian dicetak dalam satu baris dengan format yang telah ditentukan.
@@ -1259,7 +1257,7 @@ Detail :
 echo "mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" >> "$log_file"
 echo "$ram_metrics$swap_metrics$disk_metrics" >> "$log_file"
 ```
-Detail :
+ 
 -   Membuat header kolom ke file log. Header ini akan berisi nama-nama kolom yang sesuai dengan metrik-metrik yang dicatat
 - Menulis semua metrik yang telah dikumpulkan ke dalam file log. Semua metrik tersebut akan ditulis dalam satu baris, setelah header kolom, sehingga setiap kolom akan memiliki nilai yang sesuai.
 
@@ -1279,7 +1277,7 @@ Script untuk mencatat metrics diatas diharapkan dapat berjalan otomatis setiap m
 ```bash
 * * * * * /usr/operating-system/praktikum-modul-1-d04/task-3/minute_log.sh
 ```
-- detail
+ 
 
 *Crontab bertugas untuk menjalankan minute_log.sh setiap menit*
 
@@ -1490,9 +1488,15 @@ chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 - Execute `aggregate_minutes_to_hourly_log.sh`
 .....
 - Output
-.....
+![alt text](/resources/readme-image/3c-1.png)
 - Isi file `metrics_agg_${current_hour}.log`
-.....
+```bash
+type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+minimum,999999,999999,999999,999999,999999,999999,999999,999999,999999,/home/barakallah/,999999M
+maximum,0,0,0,0,0,0,0,0,0,/home/barakallah/,0M
+average,499999,499999,499999,499999,499999,499999,499999,499999,499999,/home/barakallah/,499999M
+
+```
 
 ### Problem 3d
 Selanjutnya agar lebih menghemat penyimpan, buatlah script backup_metrics.sh. Dimana script ini akan menyimpan semua log metrics aggregasi mulai dari pukul 00:00 sampai 23:59 didalam 1 file .gz menggunakan gunzip. Contoh nama file hasil zip backup_metrics_{date_YmdH}.gz
@@ -1539,10 +1543,10 @@ rm $log_files
 - `/usr/operating-system/praktikum-modul-1-d04/task-3/bakcup_metrics.sh` menunjukkan path dari file `bakcup_metrics.sh`.
 
 *8. **Dokumentasi***
-- Execute `bakcup_metrics.sh`
-.....
+- Execute `bash task-3/bakcup_metrics.sh`
+![alt text](/resources/readme-image/3d-1.png)
 - Output
-.....
+![alt text](/resources/readme-image/3b-1.png)
 
 ### Kendala
 Kendala untuk soal no 3 terdapat pada bagian soal poin c (aggregat). Kendalanya adalah untuk mencari nilai min dan max masih sangat manual, sehingga rawan salah karena harus teliti (sempat terjadi semua valuenya 0). Alhamdulillah-nya, dapat insight ketika demo bahwa ada cara yang lebih efisien dengan menggunakan `awk` untuk melakukan sorting data.
