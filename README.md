@@ -1388,9 +1388,9 @@ folder_zip() {
 
 *4. **Dokumentasi***
 - Execute `isabel.sh 4b`
-......
+![alt text](/resources/readme-image/4b-1.png)
 - Zip yang terbentuk
-.......
+![alt text](/resources/readme-image/4b-2.png)
 
 ### Problem 4c
 Ternyata laptop Isabel masih penuh, bantulah dia untuk delete semua folder dan zip setiap hari pada pukul 02.00!
@@ -1459,9 +1459,9 @@ delete_folders_and_zips() {
 
 *4. **Dokumentasi***
 - Execute 'isabel.sh 4c`
-.....
+![alt text](/resources/readme-image/4c-1.png)
 - Folder dan file zip terhapus
-.....
+![alt text](/resources/readme-image/4c-2.png)
 
 ### Problem 4d
 * Untuk mengisi laptopnya kembali, Isabel ingin mendownload gambar Levi dan Eren secara bergantian setiap harinya
@@ -1529,11 +1529,11 @@ download_foto() {
 
 *4. **Dokumentasi***
 - Execute 'isabel.sh 4d`
-.....
+![alt text](/resources/readme-image/4d-1.png)
 - Foto levi terdownload
-.....
+![alt text](/resources/readme-image/4d-2.png)
 - Foto eren terdownload (bergantian)
-.....
+![alt text](/resources/readme-image/4d-3.png)
 
 ### Kendala
 Kendala untuk soal nomor 4 lebih mengarah pada bagian cron jobs. Jadi, sebelum revisi dilakukan cron yang dibuat tidak bisa menghasilkan output dan jika ingin melihat output harus debugging manual. Disisi lain, ternyata penggunaan argumen pada cron harus diberi tanda double quote ("") agar cron bisa membacanya.
