@@ -32,6 +32,33 @@ Setelah masa upload proposal PKM 2024, Bubu sebagai sebagai anggota tim kawal me
 Karena Belmawa menetapkan judul maksimum proposal 20 kata, maka komandan ingin mencari data siapa saja tim yang tidak memenuhi ketentuan ini. Tampilkan nama pengusul, beserta departemennya yang judulnya lebih dari 20 kata. Pisahkan spasi dan hapus underscore "_" pada nama pengusul.
 
 **Jawab**
+```bash
+#!/bin/bash
+
+# set variabel untuk memuat resource data pkm
+pkm_tsv_file="resources/DataPKM.tsv"
+
+# baca file tsv, karena pakai tab separated value, pakai '\t'
+awk -F'\t' '
+BEGIN {
+    # panjang judul maks
+    maksimum_judul = 20
+    print "No. Nama Pengusul"
+}
+{
+    # ganti underscore menjadi spasi pada kolom kedua
+    gsub(/_/, " ", $2)
+    
+    split($5, judul, " ")
+
+    # Check if the title length is greater than the maximum
+    if (length(judul) > maksimum_judul) {
+        #print output
+        printf "%s\t%s\t%s\n", $1, $2, $3
+    }
+}
+' "$pkm_tsv_file"
+```
 
 *1. Inisiasi awal, variabel file pkm dan separator \t*
 ```bash
@@ -73,7 +100,7 @@ memisahkan setiap spasi untuk dideteksi pada kolom judul (kolom judul)
 *4. Menampilkan judul yang lebih dari 20 kata*
 ```bash
     if (length(judul) > maksimum_judul) {
-        printf "%s\t%s\n", $1, $2
+        printf "%s\t%s\t%s\n", $1, $2, $3
     }
 }
 ' "$pkm_tsv_file"
@@ -107,6 +134,37 @@ No. Nama Pengusul
 Komandan PKM juga tertarik ingin tahu antusiasme dan partisipasi mahasiswa sehingga meminta Bubu menampilkan bidang paling banyak diminati oleh mahasiswa. Tampilkan nama skema saja.
 
 **Jawab**
+
+```bash
+#!/bin/bash
+
+# set variabel untuk memuat resource data pkm
+pkm_tsv_file="resources/DataPKM.tsv"
+
+# baca file tsv, karena pakai tab separated value, pakai '\t'
+awk -F'\t' '
+
+{
+    # hitung berapa banyak skema yang terhitung sama pada kolom ke 7
+    if ($7 in schema) {
+        schema[$7]++
+    } else {
+        schema[$7] = 1
+    }
+}
+
+END {
+    # cari skema yang paling diminiati
+    pkm_paling_diminati = 0
+    for (i in schema) {
+        if (schema[i] > pkm_paling_diminati) {
+            pkm_paling_diminati = schema[i]
+            skema_pkm = i
+        }
+    }
+    printf "Skema dengan peminat terbanyak adalah skema %s\n", skema_pkm
+}
+' "$pkm_tsv_file"```
 
 *1. Inisiasi awal, variabel file pkm dan separator \t*
 ```bash
@@ -173,6 +231,51 @@ Skema dengan peminat terbanyak adalah skema PKM-RE
 arena ada aturan baru dimana 1 mahasiswa hanya boleh submit 1 proposal, maka komandan juga meminta Bubu untuk memberikan list mahasiswa yang mengajukan 2 proposal. Tampilkan data pembimbingnya karena ingin di kontak komandan.
 
 **Jawab**
+
+```bash
+#!/bin/bash
+
+# set variabel untuk memuat resource data pkm
+pkm_tsv_file="resources/DataPKM.tsv"
+
+# baca file tsv, karena pakai tab separated value, pakai '\t'
+awk -F'\t' '
+
+# buat array kosong untuk nama mhs dan dosbing
+BEGIN {
+    mahasiswa = ""
+    dosbing = ""
+}
+
+# Proses setiap baris dari file TSV
+{
+    # Hilangkan garis bawah dari nama_mhs
+    nama_mhs = $2
+    nama_dosbing = $6
+    gsub(/_/, " ", nama_mhs)
+
+    # Periksa apakah nama_mhs dan dosbing ada dalam array
+    if (mahasiswa == "") {
+        mahasiswa = nama_mhs
+        dosbing = nama_dosbing
+       }
+
+    # hitung nama mhs yg sama dan ambil nilai dari dosen pembimbing
+    count[nama_mhs]++
+    dosen_pembimbing[nama_mhs] = dosen_pembimbing[nama_mhs] nama_dosbing
+}
+
+END {
+    # Loop melalui array dan print nama mahasiswa dengan lebih dari satu proposal
+    for (nama_mhs in count) {
+        if (count[nama_mhs] > 1) {
+                printf "nama yang lebih dari 1 adalah %s dengan dosbing %s, silahkan dihubungi komandan\n", nama_mhs, dosen_pembimbing[nama_mhs]
+        }
+    }
+}
+' "$pkm_tsv_file"
+
+```
 
 *1. Inisiasi awal, variabel file pkm dan separator \t*
 ```bash

@@ -9,3 +9,6 @@ LOGIN: SUCCESS NUR is logged in
 
 03/22/2024 17:52:24 REGISTER: ERROR Fisika already existed
 03/22/2024 17:52:51 REGISTER: ERROR Fisika already existed
+03/27/2024 21:37:53 LOGIN: SUCCESS NUR is logged in
+03/27/2024 21:39:16 LOGIN: ERROR Failed login attempt on 
+03/27/2024 21:42:53 REGISTER: ERROR Fisika already existed
