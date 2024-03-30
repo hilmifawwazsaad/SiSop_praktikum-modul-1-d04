@@ -582,9 +582,8 @@ Enter data, separated by commas (No.,Nama_Pengusul,Departemen,Fakultas,Judul,Pen
 ```bash
 #!/bin/bash
 
-# Lokasi file CSV
 pkm_csv_file="resources/data-pkm.csv"
-# Fungsi untuk mengekstrak nama dari file CSV
+
 extract_names() {
     names=()
     IFS=$'\n'
@@ -594,7 +593,6 @@ extract_names() {
     done
 }
 
-# Fungsi untuk mengekstrak password dari file CSV
 extract_password() {
     passwords=()
     IFS=$'\n'
@@ -604,7 +602,6 @@ extract_password() {
     done
 }
 
-# Fungsi untuk menulis nama dan password ke dalam file user.txt beserta timestamp
 write_to_file() {
     save_path="/home/$(whoami)/txt_test"
     output="$save_path/users.txt"
@@ -1194,35 +1191,26 @@ Masukkan semua metrics ke dalam suatu file log bernama metrics_{YmdHms}.log. {Ym
 ```bash
 #!/bin/bash
 
-#target path yang akan dimonitoring
 target_path="/home/$(whoami)/"
 
-#path penyimpanan log
 save_path="/home/$(whoami)/metrics"
 
-#buat direktori untuk menyimpan log
 mkdir -p "$save_path" || { echo "Gagal membuat direktori $save_path"; exit 1; }
 
-#pola nama file log
 log_file="$save_path/metrics_$(date +"%Y%m%d%H%M%S").log"
 
-#fungsi untuk mencatat metrik
 log_metrics() {
-  #metrik penggunaan RAM
+
   ram_metrics=$(free -m | awk 'NR==2 {printf "%d,%d,%d,%d,%d,%d", $2, $3, $4, $5, $6, $7}')
 
-  #metrik memori swap
   swap_metrics=$(free -m | awk 'NR==3 {printf ",%d,%d,%d", $2, $3, $4}')
 
-  #metrik penggunaan disk
   disk_metrics=$(du -sh "$target_path" | awk -v target_path="$target_path" '{printf ",%s,%s\n", target_path, $1 }')
 
-  #menulis metrik ke file log
   echo "mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size" >> "$log_file"
   echo "$ram_metrics$swap_metrics$disk_metrics" >> "$log_file"
 }
 
-#cetak metrik
 log_metrics
 ```
 *1.  Inisiasi variabel path*
@@ -1254,13 +1242,10 @@ Detail :
 
 ```bash
 log_metrics() {
-  #metrik penggunaan RAM
   ram_metrics=$(free -m | awk 'NR==2 {printf "%d,%d,%d,%d,%d,%d", $2, $3, $4, $5, $6, $7}')
 
-  #metrik memori swap
   swap_metrics=$(free -m | awk 'NR==3 {printf ",%d,%d,%d", $2, $3, $4}')
 
-  #metrik penggunaan disk
   disk_metrics=$(du -sh "$target_path" | awk -v target_path="$target_path" '{printf ",%s,%s\n", target_path, $1 }')
 ```
 Detail :
@@ -1281,7 +1266,7 @@ Detail :
 
 ## output
 - File yang terbentuk
-![alt text](/resources/readme-image/3a-1.png)
+![alt text](/resources/readme-image/3a-3.png)
 ```bash
 mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
 24355,12311,11819,17,223,11913,48263,114,48149,/home/barakallah/,325M
@@ -1292,74 +1277,14 @@ Script untuk mencatat metrics diatas diharapkan dapat berjalan otomatis setiap m
 
 **Jawab**
 ```bash
-#!/bin/bash
-
-#mendapatkan waktu saat ini
-current_date=$(date +'%Y%m%d')
-
-#mendapatkan list file log aggregasi dari satu hari
-log_files=$(ls /home/$(whoami)/metrics/metrics_agg_${current_date}*.log)
-
-#menggabungkan semua file log menjadi satu
-cat $log_files > /home/$(whoami)/metrics/metrics_agg_${current_date}.log
-
-#mengompres file log menjadi file .gz
-gzip /home/$(whoami)/metrics/metrics_agg_${current_date}.log
-
-#mengubah nama file hasil kompresi
-mv /home/$(whoami)/metrics/metrics_agg_${current_date}.log.gz /home/$(whoami)/metrics/backup_metrics_${current_date}.gz
-
-#menghapus file log asli setelah terkompres
-rm $log_files
+* * * * * /usr/operating-system/praktikum-modul-1-d04/task-3/minute_log.sh
 ```
+- detail
 
-*1.  Inisiasi variabel path*
-
-```bash
-#mendapatkan waktu saat ini
-current_date=$(date +'%Y%m%d')
-```
-Detail :
--   inisialisasi variabel current_date dengan tanggal saat ini dalam format YYYYMMDD menggunakan perintah date.
-
-*2.  Mencari file dengan nama yang sesuai*
-
-```bash
-#mendapatkan list file log aggregasi dari satu hari
-log_files=$(ls /home/$(whoami)/metrics/metrics_agg_${current_date}*.log)
-```
-Detail :
--   perintah ls untuk mencari file-file log yang memiliki pola nama yang sesuai dengan `metrics_agg_${current_date}*.log` di dalam direktori `/home/$(whoami)/metrics/`. Hasilnya disimpan dalam variabel `log_files`.
-
-*3.  Menggabungkan semua file log*
-
-```bash
-#menggabungkan semua file log menjadi satu
-cat $log_files > /home/$(whoami)/metrics/metrics_agg_${current_date}.log
-```
-Detail :
--   perintah cat untuk menggabungkan semua file log yang ditemukan dalam variabel log_files menjadi satu file bernama metrics_agg_${current_date}.log di dalam direktori   `/home/$(whoami)/metrics/`
-
-*4.  Mengubah nama file*
-
-```bash
-mv /home/$(whoami)/metrics/metrics_agg_${current_date}.log.gz /home/$(whoami)/metrics/backup_metrics_${current_date}.gz
-
-```
-Detail :
--   perintah mv untuk mengubah nama file hasil kompresi menjadi backup_metrics_${current_date}.gz.
-
-*5.  Menghapus file*
-
-```bash
-#menghapus file log asli setelah terkompres
-rm $log_files
-```
-Detail :
--   menghapus file-file log asli yang telah digabungkan dan dikompresi.
+*Crontab bertugas untuk menjalankan minute_log.sh setiap menit*
 
 - File yang terbentuk
-![alt text](/resources/readme-image/3b-1.png)
+![alt text](/resources/readme-image/3a-2.png)
 ### Problem 3c
 Kemudian, buat satu script untuk membuat aggregasi file log ke satuan jam. Script aggregasi akan memiliki info dari file-file yang tergenerate tiap menit. Dalam hasil file aggregasi tersebut, terdapat nilai minimum, maximum, dan rata-rata dari tiap-tiap metrics. File aggregasi akan ditrigger untuk dijalankan setiap jam secara otomatis. Berikut contoh nama file hasil aggregasi metrics_agg_2023033015.log dengan format metrics_agg_{YmdH}.log.
 
