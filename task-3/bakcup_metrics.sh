@@ -16,4 +16,4 @@ gzip /home/$(whoami)/metrics/metrics_agg_${current_date}.log
 mv /home/$(whoami)/metrics/metrics_agg_${current_date}.log.gz /home/$(whoami)/metrics/backup_metrics_${current_date}.gz
 
 #menghapus file log asli setelah terkompres
-rm $log_files
+# rm $log_files
