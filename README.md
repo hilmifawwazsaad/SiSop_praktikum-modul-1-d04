@@ -1175,7 +1175,7 @@ rm $log_files
 ```bash
 59 23 * * * /usr/operating-system/praktikum-modul-1-d04/task-3/bakcup_metrics.sh
 ```
-- `59 23 * * *` menunjukkan bahwa file `bakcup_metrics.sh` dijalankan setiap satu jam sekali
+- `59 23 * * *` menunjukkan bahwa file `bakcup_metrics.sh` dijalankan setiap hari pada pukul 23.59
 - `/usr/operating-system/praktikum-modul-1-d04/task-3/bakcup_metrics.sh` menunjukkan path dari file `bakcup_metrics.sh`.
 
 *8. **Dokumentasi***
