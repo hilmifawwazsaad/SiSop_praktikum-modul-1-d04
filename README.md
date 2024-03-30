@@ -1486,16 +1486,17 @@ chmod 400 /home/$(whoami)/metrics/metrics_agg_${current_hour}.log
 
 *8. **Dokumentasi***
 - Execute `aggregate_minutes_to_hourly_log.sh`
-![alt text](/resources/readme-image/3c-2.png)
+![alt text](/resources/readme-image/3c-3.png)
 - Output
-![alt text](/resources/readme-image/3c-1.png)
+![alt text](/resources/readme-image/3c-5.png)
 - Isi file `metrics_agg_${current_hour}.log`
 ```bash
 type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
 type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
-minimum,999999,999999,999999,999999,999999,999999,999999,999999,999999,/home/barakallah/,999999M
-maximum,0,0,0,0,0,0,0,0,0,/home/barakallah/,0M
-average,499999,499999,499999,499999,499999,499999,499999,499999,499999,/home/barakallah/,499999M
+type,mem_total,mem_used,mem_free,mem_shared,mem_buff,mem_available,swap_total,swap_used,swap_free,path,path_size
+minimum,7808,916,6446,2,435,6650,2048,0,2048,/home/hilmifawwaz/,269M
+maximum,7808,926,6456,2,435,6660,2048,0,2048,/home/hilmifawwaz/,269M
+average,7808,921,6451,2,435,6655,2048,0,2048,/home/hilmifawwaz/,269M
 ```
 
 ### Problem 3d
